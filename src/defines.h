@@ -1,7 +1,7 @@
 #ifndef _DEFINES_H
 #define _DEFINES_H
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <stdio.h>
 
 #define SCREEN_W 400
@@ -11,9 +11,9 @@
 #define PLAYABLE_H 256
 
 #if __APPLE__
-    #define VIDEO_FLAGS SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_NOFRAME
+    #define WINDOW_FLAGS SDL_WINDOW_BORDERLESS
 #else
-    #define VIDEO_FLAGS SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN
+    #define WINDOW_FLAGS SDL_WINDOW_FULLSCREEN
 #endif
 
 typedef unsigned char u8;

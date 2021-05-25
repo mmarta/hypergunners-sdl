@@ -1,10 +1,15 @@
 #include "defines.h"
 
 SDL_Rect srcRect, destRect, renderClipRect;
-SDL_Surface *screen;
+SDL_Window *window;
+SDL_Renderer *renderer;
 
 void ClearScreen() {
-    SDL_FillRect(screen, &renderClipRect, 0);
+	SDL_SetRenderDrawColor(renderer, 16, 16, 16, 255);
+    SDL_RenderClear(renderer);
+	
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &renderClipRect);
 }
 
 int main(int argc, char *argv[]) {
@@ -14,35 +19,38 @@ int main(int argc, char *argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
 
     // Create the video
-    screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, 32, VIDEO_FLAGS);
-
-    if(!screen) {
-        printf("Could not create video: %s\n", SDL_GetError());
+	window = SDL_CreateWindow("HyperFire Dual Gunners '83",
+                              SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+							  SCREEN_W, SCREEN_H, WINDOW_FLAGS);
+	if(!window) {
+		printf("Error creating window.");
+		SDL_Quit();
+		return 1;
+	}
+	
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if(!renderer) {
+        printf("Could not create renderer.");
+		SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
     }
-
-    renderClipRect.x = 0;
-    renderClipRect.y = 0;
-    renderClipRect.w = SCREEN_W;
-    renderClipRect.h = SCREEN_H;
-    SDL_FillRect(screen, &renderClipRect, 0x202020ff);
 
     renderClipRect.x = (SCREEN_W - PLAYABLE_W) / 2;
     renderClipRect.y = (SCREEN_H - PLAYABLE_H) / 2;
     renderClipRect.w = PLAYABLE_W;
     renderClipRect.h = PLAYABLE_H;
-    SDL_SetClipRect(screen, &renderClipRect);
+    SDL_RenderSetClipRect(renderer, &renderClipRect);
 
-    const u8 *state = SDL_GetKeyState(NULL);
+    const u8 *state = SDL_GetKeyboardState(NULL);
 
     i = renderClipRect.x;
 
-    while(!state[SDLK_ESCAPE]) {
-        SDL_Flip(screen);
+    while(!state[SDL_SCANCODE_ESCAPE]) {
+        SDL_RenderPresent(renderer);
 
         SDL_PumpEvents(); // Needed for window events. Important!
-        state = SDL_GetKeyState(NULL);
+        state = SDL_GetKeyboardState(NULL);
 
         ClearScreen();
 
@@ -50,13 +58,16 @@ int main(int argc, char *argv[]) {
         destRect.y = 48;
         destRect.w = 10;
         destRect.h = 10;
-        SDL_FillRect(screen, &destRect, 0x0000ff00);
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &destRect);
         i++;
         if(i >= renderClipRect.x + PLAYABLE_W) {
             i = renderClipRect.x - 10;
         }
     }
 
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
 }
