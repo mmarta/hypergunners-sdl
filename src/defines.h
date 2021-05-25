@@ -2,19 +2,14 @@
 #define _DEFINES_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <stdio.h>
 
-#define SCREEN_W 400
-#define SCREEN_H 300
+#define END_Y 152;
+#define FAR_Y 174;
+#define MIDDLE_Y 204;
 
-#define PLAYABLE_W 224
-#define PLAYABLE_H 256
-
-#if __APPLE__
-    #define WINDOW_FLAGS SDL_WINDOW_BORDERLESS
-#else
-    #define WINDOW_FLAGS SDL_WINDOW_FULLSCREEN
-#endif
+#define DEBUG_HITBOX 0;
 
 typedef unsigned char u8;
 typedef unsigned short u16;
