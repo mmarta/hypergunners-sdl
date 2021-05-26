@@ -9,10 +9,14 @@ int main(int argc, char *argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
 	SDL_ShowCursor(SDL_DISABLE);
 
+	SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY, "2", SDL_HINT_OVERRIDE);
+
     // Create the video
+	SDL_DisplayMode mode;
+	SDL_GetDesktopDisplayMode(0, &mode);
 	window = SDL_CreateWindow("HyperFire Dual Gunners '83",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-							  SCREEN_W, SCREEN_H, WINDOW_FLAGS);
+							  mode.w, mode.h, WINDOW_FLAGS);
 	if(!window) {
 		printf("Error creating window.");
 		SDL_Quit();
@@ -26,6 +30,13 @@ int main(int argc, char *argv[]) {
         SDL_Quit();
         return 1;
     }
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderClear(renderer);
+
+	// Size to screen!
+	SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
+	SDL_RenderSetLogicalSize(renderer, PLAYABLE_W, PLAYABLE_H);
 
     // Load Graphics & Crosshatch
 	if(LoadGraphics() != 0) {
@@ -42,8 +53,6 @@ int main(int argc, char *argv[]) {
 
 	// GO!
 	const u8 *state = SDL_GetKeyboardState(NULL);
-
-    i = renderClipRect.x;
 
     while(!state[SDL_SCANCODE_ESCAPE]) {
         SDL_RenderPresent(renderer);

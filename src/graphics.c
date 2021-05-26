@@ -22,12 +22,6 @@ SDL_Texture* LoadImage(const char *filename) {
 }
 
 u8 LoadGraphics() {
-    renderClipRect.x = (SCREEN_W - PLAYABLE_W) / 2;
-    renderClipRect.y = (SCREEN_H - PLAYABLE_H) / 2;
-    renderClipRect.w = PLAYABLE_W;
-    renderClipRect.h = PLAYABLE_H;
-    SDL_RenderSetClipRect(renderer, &renderClipRect);
-
     font = LoadImage("img/font.png");
     if(!font) {
         FreeGraphics();
@@ -64,11 +58,8 @@ void FreeGraphics() {
 }
 
 void ClearScreen() {
-	SDL_SetRenderDrawColor(renderer, 16, 16, 16, 255);
-    SDL_RenderClear(renderer);
-
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderFillRect(renderer, &renderClipRect);
+    SDL_RenderClear(renderer);
 }
 
 void PrintFont(int x, int y, const char *str) {
