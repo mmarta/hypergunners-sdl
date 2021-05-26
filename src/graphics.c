@@ -4,7 +4,7 @@ SDL_Texture *font = NULL;
 SDL_Texture *spritePlayer = NULL;
 SDL_Texture *spriteEnemy = NULL;
 
-SDL_Rect srcRect, destRect;
+SDL_Rect srcRect, destRect, renderClipRect;
 
 SDL_Texture* LoadImage(const char *filename) {
 	SDL_Surface *tempSurface = IMG_Load(filename);
@@ -22,6 +22,12 @@ SDL_Texture* LoadImage(const char *filename) {
 }
 
 u8 LoadGraphics() {
+    renderClipRect.x = (SCREEN_W - PLAYABLE_W) / 2;
+    renderClipRect.y = (SCREEN_H - PLAYABLE_H) / 2;
+    renderClipRect.w = PLAYABLE_W;
+    renderClipRect.h = PLAYABLE_H;
+    SDL_RenderSetClipRect(renderer, &renderClipRect);
+
     font = LoadImage("img/font.png");
     if(!font) {
         FreeGraphics();
@@ -57,6 +63,14 @@ void FreeGraphics() {
     }
 }
 
+void ClearScreen() {
+	SDL_SetRenderDrawColor(renderer, 16, 16, 16, 255);
+    SDL_RenderClear(renderer);
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &renderClipRect);
+}
+
 void PrintFont(int x, int y, const char *str) {
     u8 i = 0, code;
     while(*str) {
@@ -78,48 +92,66 @@ void PrintFont(int x, int y, const char *str) {
     }
 }
 
-/*
-const printFontNumber = function(x, y, val, maxVal) {
-    let first = true, modVal, code;
+void PrintFontNumber(int x, int y, int val, int maxVal) {
+    u8 first = 1, modVal, code;
 
     do {
         modVal = val % 10;
         code = modVal + 16;
-        context.drawImage(tileFont, !first && modVal == 0 && val == 0 ? 0 : code << 3, 0, 8, 8, x, y, 8, 8);
+
+        srcRect.x = !first && modVal == 0 && val == 0 ? 0 : code << 3;
+        srcRect.y = 0;
+        srcRect.w = 8;
+        srcRect.h = 8;
+
+        destRect.x = x;
+        destRect.y = y;
+        destRect.w = 8;
+        destRect.h = 8;
+
+        SDL_RenderCopy(renderer, font, &srcRect, &destRect);
         x -= 8;
-        val = (val / 10) >> 0;
-        maxVal = (maxVal / 10) >> 0;
-        first = false;
+        val = val / 10;
+        maxVal = maxVal / 10;
+        first = 0;
     } while(maxVal > 0);
-};
+}
 
-const drawCrossHatchWithCallback = function(mainCallback) {
-    setTimeout(() => {
-        let i;
-        resetContext();
-        context.fillStyle = '#fff';
+void DrawCrossHatchAndWait() {
+    int i, end, frames = 0;
 
-        i = 0;
-        while(i < 256) {
-            context.fillRect(0, i, OVERSCAN_W, 1);
+    while(frames < 120) {
+        SDL_RenderPresent(renderer);
+        SDL_PumpEvents();
+
+        ClearScreen();
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+        destRect.x = renderClipRect.x;
+        destRect.w = PLAYABLE_W;
+        destRect.h = 1;
+
+        i = renderClipRect.y;
+        end = i + PLAYABLE_H;
+        while(i < end) {
+            destRect.y = i;
+            SDL_RenderFillRect(renderer, &destRect);
             i += 16;
         }
 
-        i = 0;
-        while(i < 224) {
-            context.fillRect(i, 0, 1, DISPLAY_H);
+        destRect.y = renderClipRect.y;
+        destRect.w = 1;
+        destRect.h = PLAYABLE_H;
+
+        i = renderClipRect.x;
+        end = i + PLAYABLE_W;
+        while(i < end) {
+            destRect.x = i;
+            SDL_RenderFillRect(renderer, &destRect);
             i += 16;
         }
 
-        setTimeout(() => {
-            mainCallback();
-        }, 2000);
-
-        flip();
-    }, 1000);
-};
-
-const flip = function() {
-    displayContext.drawImage(drawable, 8, 0);
-};
-*/
+        frames++;
+    }
+}

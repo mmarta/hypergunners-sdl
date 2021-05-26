@@ -22,11 +22,14 @@ extern SDL_Texture *font;
 extern SDL_Texture *spritePlayer;
 extern SDL_Texture *spriteEnemy;
 
-extern SDL_Rect srcRect, destRect;
+extern SDL_Rect srcRect, destRect, renderClipRect;
 
 SDL_Texture * LoadImage(const char *);
 u8 LoadGraphics();
 void FreeGraphics();
+void ClearScreen();
 void PrintFont(int, int, const char *);
+void PrintFontNumber(int, int, int, int);
+void DrawCrossHatchAndWait();
 
 #endif
