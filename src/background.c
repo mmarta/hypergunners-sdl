@@ -2,7 +2,7 @@
 
 typedef struct {
     u8 r, g, b, on;
-    int x, y;
+    SDL_Rect rect;
 } BackgroundStar;
 
 u8 backgroundTime;
@@ -16,8 +16,10 @@ void BackgroundInit() {
         backgroundStars[i].r = rand() % 256;
         backgroundStars[i].g = rand() % 256;
         backgroundStars[i].b = rand() % 256;
-        backgroundStars[i].x = (rand() % 224);
-        backgroundStars[i].y = (rand() % 64) + 96;
+        backgroundStars[i].rect.x = (rand() % 224);
+        backgroundStars[i].rect.y = (rand() % 64) + 96;
+        backgroundStars[i].rect.w = 1;
+        backgroundStars[i].rect.h = 1;
         backgroundStars[i].on = i < (STAR_TOTAL >> 1) ? 1 : 0;
         i++;
     }
@@ -35,8 +37,8 @@ void BackgroundUpdate() {
                 backgroundStars[i].r = rand() % 256;
                 backgroundStars[i].g = rand() % 256;
                 backgroundStars[i].b = rand() % 256;
-                backgroundStars[i].x = (rand() % 224);
-                backgroundStars[i].y = (rand() % 64) + 96;
+                backgroundStars[i].rect.x = (rand() % 224);
+                backgroundStars[i].rect.y = (rand() % 64) + 96;
             }
             backgroundStars[i].on = !backgroundStars[i].on;
             i++;
@@ -73,11 +75,7 @@ void BackgroundDraw() {
     i = 0;
     while(i < STAR_TOTAL) {
         SDL_SetRenderDrawColor(renderer, backgroundStars[i].r, backgroundStars[i].g, backgroundStars[i].b, 255);
-        destRect.x = backgroundStars[i].x;
-        destRect.y = backgroundStars[i].y;
-        destRect.w = 1;
-        destRect.h = 1;
-        SDL_RenderFillRect(renderer, &destRect);
+        SDL_RenderFillRect(renderer, &backgroundStars[i].rect);
         i++;
     }
 }

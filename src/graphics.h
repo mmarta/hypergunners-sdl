@@ -3,11 +3,18 @@
 
 #include "defines.h"
 
+#define SCREEN_W 0
+#define SCREEN_H 0
+
 #define PLAYABLE_W 224
 #define PLAYABLE_H 256
 
 #if __APPLE__
-    #define WINDOW_FLAGS SDL_WINDOW_FULLSCREEN
+    #if SCREEN_W
+        #define WINDOW_FLAGS SDL_WINDOW_BORDERLESS
+    #else
+        #define WINDOW_FLAGS SDL_WINDOW_FULLSCREEN
+    #endif
 #else
     #define WINDOW_FLAGS SDL_WINDOW_FULLSCREEN
 #endif

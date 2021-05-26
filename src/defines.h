@@ -5,11 +5,11 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 
-#define END_Y 152;
-#define FAR_Y 174;
-#define MIDDLE_Y 204;
+#define END_Y 128
+#define FAR_Y 150
+#define MIDDLE_Y 180
 
-#define DEBUG_HITBOX 0;
+#define DEBUG_HITBOX 0
 
 typedef unsigned char u8;
 typedef unsigned short u16;

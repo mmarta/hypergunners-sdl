@@ -1,6 +1,11 @@
 #include "defines.h"
+#include "system.h"
 #include "graphics.h"
 #include "background.h"
+#include "bullet.h"
+#include "player.h"
+
+u8 frameTime = 0;
 
 int main(int argc, char *argv[]) {
     u16 i = 0;
@@ -9,14 +14,14 @@ int main(int argc, char *argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
 	SDL_ShowCursor(SDL_DISABLE);
 
-	SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY, "2", SDL_HINT_OVERRIDE);
+	//SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY, "0", SDL_HINT_OVERRIDE);
 
     // Create the video
 	SDL_DisplayMode mode;
 	SDL_GetDesktopDisplayMode(0, &mode);
 	window = SDL_CreateWindow("HyperFire Dual Gunners '83",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-							  mode.w, mode.h, WINDOW_FLAGS);
+							  SCREEN_W ? SCREEN_W : mode.w, SCREEN_H ? SCREEN_H : mode.h, WINDOW_FLAGS);
 	if(!window) {
 		printf("Error creating window.");
 		SDL_Quit();
@@ -48,24 +53,75 @@ int main(int argc, char *argv[]) {
 	}
 
 	BackgroundInit();
-
 	DrawCrossHatchAndWait();
 
-	// GO!
-	const u8 *state = SDL_GetKeyboardState(NULL);
+	PlayerInit(0);
+	PlayerInit(1);
 
-    while(!state[SDL_SCANCODE_ESCAPE]) {
+	// Go!
+	ReadAllControls();
+
+    while(!controlKeys[SDL_SCANCODE_ESCAPE]) {
         SDL_RenderPresent(renderer);
 
-        SDL_PumpEvents(); // Needed for window events. Important!
-        state = SDL_GetKeyboardState(NULL);
+		// Input
+		ReadAllControls();
+		PlayerInput(0);
+		PlayerInput(1);
 
 		// Updates
 		BackgroundUpdate();
 
+		i = 0;
+	    while(i < PLAYER_BULLET_TOTAL) {
+	        PlayerBulletUpdate(i);
+	        i++;
+	    }
+
+	    i = 0;
+	    while(i < SHRAPNEL_BULLET_TOTAL) {
+			ShrapnelBulletUpdate(i);
+	        i++;
+	    }
+
+	    /*i = 0;
+	    while(i < enemies.length) {
+	        enemies[i].update();
+	        i++;
+	    }*/
+
+	    PlayerUpdate(0);
+		PlayerUpdate(1);
+
 		// Draw
         ClearScreen();
 		BackgroundDraw();
+
+		i = 0;
+	    while(i < PLAYER_BULLET_TOTAL) {
+	        PlayerBulletDraw(i);
+	        i++;
+	    }
+
+	    i = 0;
+	    while(i < SHRAPNEL_BULLET_TOTAL) {
+	        ShrapnelBulletDraw(i);
+	        i++;
+	    }
+
+	    /*i = 0;
+	    while(i < enemies.length) {
+	        enemies[i].draw();
+	        i++;
+	    }*/
+
+	    if(frameTime >= 2) {
+	        PlayerDraw(1);
+	        PlayerDraw(0);
+	    } else {
+			PlayerDraw(0);
+	        PlayerDraw(1);
+	    }
     }
 
 	FreeGraphics();
