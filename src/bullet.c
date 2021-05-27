@@ -21,6 +21,10 @@ void PlayerBulletFireNext(u8 playerIndex, int x, int y) {
             playerBullets[i].hitbox.rect.y = playerBullets[i].rect.y;
             playerBullets[i].hitbox.rect.w = playerBullets[i].rect.w;
             playerBullets[i].hitbox.rect.h = playerBullets[i].rect.h;
+            playerBullets[i].srcRect.x = 0;
+            playerBullets[i].srcRect.y = 0;
+            playerBullets[i].srcRect.w = playerBullets[i].rect.w;
+            playerBullets[i].srcRect.h = playerBullets[i].rect.h;
             playerBullets[i].hitbox.collidable = 1;
             playerBullets[i].active = 1;
             return;
@@ -64,19 +68,15 @@ void PlayerBulletDraw(u8 i) {
         return;
     }
 
-    srcRect.y = 0;
-    srcRect.w = playerBullets[i].rect.w;
-    srcRect.h = playerBullets[i].rect.h;
-
     if(playerBullets[i].rect.y < FAR_Y) {
-        srcRect.x = 160;
+        playerBullets[i].srcRect.x = 160;
     } else if(playerBullets[i].rect.y < MIDDLE_Y) {
-        srcRect.x = 144;
+        playerBullets[i].srcRect.x = 144;
     } else {
-        srcRect.x = 128;
+        playerBullets[i].srcRect.x = 128;
     }
 
-    SDL_RenderCopy(renderer, spritePlayer, &srcRect, &playerBullets[i].rect);
+    SDL_RenderCopy(renderer, spritePlayer, &playerBullets[i].srcRect, &playerBullets[i].rect);
 
     if(DEBUG_HITBOX) {
         if(playerBullets[i].hitbox.collidable) {
@@ -111,6 +111,10 @@ void ShrapnelBulletSpray(int enemyX, int enemyY, u8 associatedPlayerIndex, u8 mu
             shrapnelBullets[i].rect.h = SHRAPNEL_BULLET_SIZE;
             shrapnelBullets[i].hitbox.rect.w = SHRAPNEL_BULLET_SIZE;
             shrapnelBullets[i].hitbox.rect.h = SHRAPNEL_BULLET_SIZE;
+            shrapnelBullets[i].srcRect.x = shrapnelBullets[i].dX < 0 ? 240 : 248;
+            shrapnelBullets[i].srcRect.y = shrapnelBullets[i].dY < 0 ? 0 : 8;
+            shrapnelBullets[i].srcRect.w = shrapnelBullets[i].rect.w;
+            shrapnelBullets[i].srcRect.h = shrapnelBullets[i].rect.h;
             shrapnelBullets[i].hitbox.collidable = 1;
             shrapnelBullets[i].active = 1;
 
@@ -151,12 +155,7 @@ void ShrapnelBulletDraw(u8 i) {
         return;
     }
 
-    srcRect.x = shrapnelBullets[i].dX < 0 ? 240 : 248;
-    srcRect.y = shrapnelBullets[i].dY < 0 ? 0 : 8;
-    srcRect.w = shrapnelBullets[i].rect.w;
-    srcRect.h = shrapnelBullets[i].rect.h;
-
-    SDL_RenderCopy(renderer, spriteEnemy, &srcRect, &shrapnelBullets[i].rect);
+    SDL_RenderCopy(renderer, spriteEnemy, &shrapnelBullets[i].srcRect, &shrapnelBullets[i].rect);
 }
 
 void ShrapnelBulletDeactivate(u8 i) {

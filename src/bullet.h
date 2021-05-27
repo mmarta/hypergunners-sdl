@@ -16,13 +16,13 @@
 #define SHRAPNEL_BULLET_SIZE 8
 
 typedef struct {
-    SDL_Rect rect;
+    SDL_Rect rect, srcRect;
     u8 active;
     Hitbox hitbox;
 } PlayerBullet;
 
 typedef struct {
-    SDL_Rect rect;
+    SDL_Rect rect, srcRect;
     char dX, dY;
     u8 active, associatedPlayerIndex, multiplier;
     Hitbox hitbox;
