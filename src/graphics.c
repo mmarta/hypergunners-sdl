@@ -22,7 +22,12 @@ SDL_Texture* LoadImage(const char *filename) {
 }
 
 u8 LoadGraphics() {
-    font = LoadImage("img/font.png");
+	char cwd[500];
+   	if(getcwd(cwd, sizeof(cwd)) != NULL) {
+    	printf("Current working dir: %s\n", cwd);
+    }
+
+	font = LoadImage("img/font.png");
     if(!font) {
 		printf("Didn't load the font.\n");
         FreeGraphics();

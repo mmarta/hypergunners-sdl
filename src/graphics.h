@@ -2,6 +2,7 @@
 #define _GRAPHICS_H
 
 #include "defines.h"
+#include "unistd.h"
 
 #define SCREEN_W 400
 #define SCREEN_H 300
