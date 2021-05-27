@@ -5,6 +5,7 @@ SDL_Texture *spritePlayer = NULL;
 SDL_Texture *spriteEnemy = NULL;
 
 SDL_Rect srcRect, destRect, renderClipRect;
+u8 imageInit = 0;
 
 SDL_Texture* LoadImage(const char *filename) {
 	SDL_Surface *tempSurface = IMG_Load(filename);
@@ -22,28 +23,29 @@ SDL_Texture* LoadImage(const char *filename) {
 }
 
 u8 LoadGraphics() {
-	char cwd[500];
-   	if(getcwd(cwd, sizeof(cwd)) != NULL) {
-    	printf("Current working dir: %s\n", cwd);
-    }
+	int initted = IMG_Init(IMG_INIT_PNG);
+	if((initted & IMG_INIT_PNG) != IMG_INIT_PNG) {
+		FreeGraphics();
+		return 1;
+	}
+
+	imageInit = 1;
+
 
 	font = LoadImage("img/font.png");
     if(!font) {
-		printf("Didn't load the font.\n");
         FreeGraphics();
         return 1;
     }
 
     spritePlayer = LoadImage("img/player.png");
     if(!spritePlayer) {
-		printf("Didn't load the player sprites.\n");
         FreeGraphics();
         return 2;
     }
 
     spriteEnemy = LoadImage("img/enemy.png");
     if(!spriteEnemy) {
-		printf("Didn't load the enemy sprites.\n");
         FreeGraphics();
         return 2;
     }
@@ -63,6 +65,10 @@ void FreeGraphics() {
     if(spriteEnemy) {
         SDL_DestroyTexture(spriteEnemy);
     }
+
+	if(imageInit) {
+		IMG_Quit();
+	}
 }
 
 void ClearScreen() {
