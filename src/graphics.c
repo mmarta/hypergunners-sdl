@@ -31,20 +31,31 @@ u8 LoadGraphics() {
 
 	imageInit = 1;
 
-
-	font = LoadImage("img/font.png");
+	if(IS_APPLE) {
+		font = LoadImage("img/font.png");
+	} else {
+		font = LoadImage("img\\font.png");
+	}
     if(!font) {
         FreeGraphics();
         return 1;
     }
 
-    spritePlayer = LoadImage("img/player.png");
+	if(IS_APPLE) {
+		spritePlayer = LoadImage("img/player.png");
+	} else {
+		spritePlayer = LoadImage("img\\player.png");
+	}
     if(!spritePlayer) {
         FreeGraphics();
         return 2;
     }
 
-    spriteEnemy = LoadImage("img/enemy.png");
+	if(IS_APPLE) {
+		spriteEnemy = LoadImage("img/enemy.png");
+	} else {
+		spriteEnemy = LoadImage("img\\enemy.png");
+	}
     if(!spriteEnemy) {
         FreeGraphics();
         return 2;

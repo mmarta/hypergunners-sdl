@@ -16,8 +16,10 @@
     #else
         #define WINDOW_FLAGS SDL_WINDOW_FULLSCREEN
     #endif
+    #define IS_APPLE 1
 #else
     #define WINDOW_FLAGS SDL_WINDOW_FULLSCREEN
+    #define IS_APPLE 0
 #endif
 
 SDL_Window *window;
