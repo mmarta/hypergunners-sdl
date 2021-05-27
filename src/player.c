@@ -123,6 +123,8 @@ void PlayerDraw(u8 i) {
             players[i].spriteRect.x = 208;
         } else if(players[i].killTime < 17) {
             players[i].spriteRect.x = 224;
+        } else if(players[i].killTime <= 120) {
+            noDraw = 1;
         } else if(players[i].killTime > 120) {
             killMod = players[i].killTime % 8;
             if(killMod >= 4) {

@@ -110,7 +110,7 @@ void ShrapnelBulletSpray(int enemyX, int enemyY, u8 associatedPlayerIndex, u8 mu
             shrapnelBullets[i].rect.w = SHRAPNEL_BULLET_SIZE;
             shrapnelBullets[i].rect.h = SHRAPNEL_BULLET_SIZE;
             shrapnelBullets[i].hitbox.rect.w = SHRAPNEL_BULLET_SIZE;
-            shrapnelBullets[i].hitbox.rect.y = SHRAPNEL_BULLET_SIZE;
+            shrapnelBullets[i].hitbox.rect.h = SHRAPNEL_BULLET_SIZE;
             shrapnelBullets[i].hitbox.collidable = 1;
             shrapnelBullets[i].active = 1;
 

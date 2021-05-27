@@ -4,11 +4,13 @@
 #include "background.h"
 #include "bullet.h"
 #include "player.h"
+#include "enemy.h"
 
 u8 frameTime = 0;
 
 int main(int argc, char *argv[]) {
     u16 i = 0;
+	u8 j;
 
     // Begin
     SDL_Init(SDL_INIT_VIDEO);
@@ -56,7 +58,8 @@ int main(int argc, char *argv[]) {
 	DrawCrossHatchAndWait();
 
 	PlayerInit(0);
-	PlayerInit(1);
+	//PlayerInit(1);
+	EnemyInitAll();
 
 	// Go!
 	ReadAllControls();
@@ -69,8 +72,67 @@ int main(int argc, char *argv[]) {
 		PlayerInput(0);
 		PlayerInput(1);
 
+		// Check collisions first
+	    i = 0;
+	    while(i < ENEMY_TOTAL) {
+            // Player Bullet Collision First
+	        j = 0;
+	        while(j < PLAYER_BULLET_TOTAL) {
+	            if(HitboxCollision(&enemies[i].hitbox, &playerBullets[j].hitbox)) {
+	                EnemyKill(i, &players[j / PLAYER_BULLET_PER_PLAYER], 1);
+	                PlayerBulletDeactivate(j);
+	                break;
+	            }
+	            j++;
+	        }
+
+            // Then shrapnel collision
+            j = 0;
+	        while(j < SHRAPNEL_BULLET_TOTAL) {
+	            if(HitboxCollision(&enemies[i].hitbox, &shrapnelBullets[j].hitbox)) {
+	                EnemyKill(i, &players[shrapnelBullets[j].associatedPlayerIndex], shrapnelBullets[j].multiplier);
+	                ShrapnelBulletDeactivate(j);
+	                break;
+	            }
+	            j++;
+	        }
+
+	        // Also check player collision!
+	        j = 0;
+	        while(j < PLAYER_TOTAL) {
+	            if(HitboxCollision(&enemies[i].hitbox, &players[j].hitbox)) {
+	                EnemyKill(i, &players[j], 1);
+	                PlayerKill(j);
+	                break;
+	            }
+	            j++;
+	        }
+
+	        i++;
+	    }
+
+        i = 0;
+        while(i < PLAYER_TOTAL) {
+            // Then shrapnel collision
+            j = 0;
+	        while(j < SHRAPNEL_BULLET_TOTAL) {
+	            if(HitboxCollision(&players[i].hitbox, &shrapnelBullets[j].hitbox)) {
+	                PlayerKill(i);
+	                ShrapnelBulletDeactivate(j);
+	                break;
+	            }
+	            j++;
+	        }
+
+            i++;
+        }
+
 		// Updates
 		BackgroundUpdate();
+
+		if(rand() % 10 == 0) {
+	        EnemySpawnNext();
+	    }
 
 		i = 0;
 	    while(i < PLAYER_BULLET_TOTAL) {
@@ -84,11 +146,11 @@ int main(int argc, char *argv[]) {
 	        i++;
 	    }
 
-	    /*i = 0;
-	    while(i < enemies.length) {
-	        enemies[i].update();
+	    i = 0;
+	    while(i < ENEMY_TOTAL) {
+	        EnemyUpdate(i);
 	        i++;
-	    }*/
+	    }
 
 	    PlayerUpdate(0);
 		PlayerUpdate(1);
@@ -109,11 +171,11 @@ int main(int argc, char *argv[]) {
 	        i++;
 	    }
 
-	    /*i = 0;
-	    while(i < enemies.length) {
-	        enemies[i].draw();
+		i = 0;
+	    while(i < ENEMY_TOTAL) {
+	        EnemyDraw(i);
 	        i++;
-	    }*/
+	    }
 
 	    if(frameTime >= 2) {
 	        PlayerDraw(1);
