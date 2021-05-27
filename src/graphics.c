@@ -24,18 +24,21 @@ SDL_Texture* LoadImage(const char *filename) {
 u8 LoadGraphics() {
     font = LoadImage("img/font.png");
     if(!font) {
+		printf("Didn't load the font.\n");
         FreeGraphics();
         return 1;
     }
 
     spritePlayer = LoadImage("img/player.png");
     if(!spritePlayer) {
+		printf("Didn't load the player sprites.\n");
         FreeGraphics();
         return 2;
     }
 
     spriteEnemy = LoadImage("img/enemy.png");
     if(!spriteEnemy) {
+		printf("Didn't load the enemy sprites.\n");
         FreeGraphics();
         return 2;
     }

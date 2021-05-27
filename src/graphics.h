@@ -3,8 +3,8 @@
 
 #include "defines.h"
 
-#define SCREEN_W 0
-#define SCREEN_H 0
+#define SCREEN_W 400
+#define SCREEN_H 300
 
 #define PLAYABLE_W 224
 #define PLAYABLE_H 256
