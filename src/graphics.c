@@ -25,6 +25,7 @@ SDL_Texture* LoadImage(const char *filename) {
 u8 LoadGraphics() {
 	int initted = IMG_Init(IMG_INIT_PNG);
 	if((initted & IMG_INIT_PNG) != IMG_INIT_PNG) {
+		printf("Error initializing image library: %s\n", IMG_GetError());
 		FreeGraphics();
 		return 1;
 	}
