@@ -31,32 +31,23 @@ u8 LoadGraphics() {
 
 	imageInit = 1;
 
-	if(IS_APPLE) {
-		font = LoadImage("img/font.png");
-	} else {
-		font = LoadImage("img\\font.png");
-	}
+	font = LoadImage("img/font.png");
     if(!font) {
+		printf("Error loading font: %s\n", IMG_GetError());
         FreeGraphics();
         return 1;
     }
 
-	if(IS_APPLE) {
-		spritePlayer = LoadImage("img/player.png");
-	} else {
-		spritePlayer = LoadImage("img\\player.png");
-	}
+    spritePlayer = LoadImage("img/player.png");
     if(!spritePlayer) {
+		printf("Error loading player sprite: %s\n", IMG_GetError());
         FreeGraphics();
         return 2;
     }
 
-	if(IS_APPLE) {
-		spriteEnemy = LoadImage("img/enemy.png");
-	} else {
-		spriteEnemy = LoadImage("img\\enemy.png");
-	}
+    spriteEnemy = LoadImage("img/enemy.png");
     if(!spriteEnemy) {
+		printf("Error loading enemy sprite: %s\n", IMG_GetError());
         FreeGraphics();
         return 2;
     }
