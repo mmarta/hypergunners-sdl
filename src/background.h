@@ -7,7 +7,7 @@
 #define STAR_TOTAL 50
 
 #define BACKGROUND_LINE_R 0
-#define BACKGROUND_LINE_G 0
+#define BACKGROUND_LINE_G 128
 #define BACKGROUND_LINE_B 255
 
 void BackgroundInit();

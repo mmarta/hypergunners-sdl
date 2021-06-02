@@ -102,7 +102,7 @@ void ShrapnelBulletSpray(int enemyX, int enemyY, u8 associatedPlayerIndex, u8 mu
             shrapnelBullets[i].rect.x = sprayed < 2 ? enemyX : enemyX + SHRAPNEL_BULLET_SIZE;
             shrapnelBullets[i].rect.y = sprayed % 2 ? enemyY + SHRAPNEL_BULLET_SIZE : enemyY;
             shrapnelBullets[i].dX = sprayed < 2 ? -4 : 4;
-            shrapnelBullets[i].dY = sprayed % 2 ? 4 : -4;
+            shrapnelBullets[i].dY = sprayed % 2 ? 2 : -4;
             shrapnelBullets[i].associatedPlayerIndex = associatedPlayerIndex;
             shrapnelBullets[i].multiplier = multiplier;
             shrapnelBullets[i].hitbox.rect.x = shrapnelBullets[i].rect.x;

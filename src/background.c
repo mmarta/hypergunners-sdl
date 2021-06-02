@@ -17,7 +17,7 @@ void BackgroundInit() {
         backgroundStars[i].g = rand() % 256;
         backgroundStars[i].b = rand() % 256;
         backgroundStars[i].rect.x = (rand() % 224);
-        backgroundStars[i].rect.y = (rand() % 64) + 96;
+        backgroundStars[i].rect.y = (rand() % 64) + 16;
         backgroundStars[i].rect.w = 1;
         backgroundStars[i].rect.h = 1;
         backgroundStars[i].on = i < (STAR_TOTAL >> 1) ? 1 : 0;
@@ -38,7 +38,7 @@ void BackgroundUpdate() {
                 backgroundStars[i].g = rand() % 256;
                 backgroundStars[i].b = rand() % 256;
                 backgroundStars[i].rect.x = (rand() % 224);
-                backgroundStars[i].rect.y = (rand() % 64) + 96;
+                backgroundStars[i].rect.y = (rand() % 64) + 16;
             }
             backgroundStars[i].on = !backgroundStars[i].on;
             i++;
@@ -54,23 +54,25 @@ void BackgroundDraw() {
     destRect.w = PLAYABLE_W;
     destRect.h = 1;
 
-    destRect.y = 160;
+    destRect.y = 80;
     SDL_RenderFillRect(renderer, &destRect);
-    destRect.y = 160 + lineTime;
+    destRect.y = 80 + lineTime;
     SDL_RenderFillRect(renderer, &destRect);
-    destRect.y = 176 + (lineTime << 1);
+    destRect.y = 96 + (lineTime << 1);
     SDL_RenderFillRect(renderer, &destRect);
-    destRect.y = 208 + (lineTime << 2);
+    destRect.y = 128 + (lineTime << 2);
+    SDL_RenderFillRect(renderer, &destRect);
+    destRect.y = 176 + (lineTime << 2);
     SDL_RenderFillRect(renderer, &destRect);
 
-    destRect.y = 95;
+    /*destRect.y = 95;
     SDL_RenderFillRect(renderer, &destRect);
     destRect.y = 95 - lineTime;
     SDL_RenderFillRect(renderer, &destRect);
     destRect.y = 79 - (lineTime << 1);
     SDL_RenderFillRect(renderer, &destRect);
     destRect.y = 47 - (lineTime << 2);
-    SDL_RenderFillRect(renderer, &destRect);
+    SDL_RenderFillRect(renderer, &destRect);*/
 
     i = 0;
     while(i < STAR_TOTAL) {

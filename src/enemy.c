@@ -164,7 +164,7 @@ void EnemySpawnNext() {
     while(i < ENEMY_TOTAL) {
         if(!enemies[i].active) {
             enemies[i].rect.x = rand() % 208;
-            enemies[i].rect.y = 128;
+            enemies[i].rect.y = END_Y;
             enemies[i].hitbox.rect.x = enemies[i].rect.x + 4;
             enemies[i].hitbox.rect.y = enemies[i].rect.y + 11;
             enemies[i].hitbox.rect.w = 8;

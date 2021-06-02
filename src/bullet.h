@@ -5,10 +5,10 @@
 #include "graphics.h"
 #include "collision.h"
 
-#define PLAYER_BULLET_TOTAL 4
+#define PLAYER_BULLET_TOTAL 6
 #define SHRAPNEL_BULLET_TOTAL 12
 
-#define PLAYER_BULLET_PER_PLAYER 2
+#define PLAYER_BULLET_PER_PLAYER 3
 
 #define PLAYER_BULLET_W 16
 #define PLAYER_BULLET_H 8

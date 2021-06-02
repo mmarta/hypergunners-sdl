@@ -6,9 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define END_Y 128
-#define FAR_Y 150
-#define MIDDLE_Y 180
+#define END_Y 64
+#define FAR_Y 100
+#define MIDDLE_Y 150
 
 #define DEBUG_HITBOX 0
 
