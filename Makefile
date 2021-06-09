@@ -6,13 +6,16 @@ SDL_LIB=`sdl2-config --libs` -lSDL2_image
 SDL_LIB_WIN=-lmingw32 -lSDL2main -lSDL2 -lSDL2_image
 SRC=src/*.c
 
-all: build
+all: build-win
 
-build:
+build-mac:
 	$(CC) $(SDL_LIB) $(SRC) -o $(PROJECT_CODE)
 
 build-win:
 	$(CC) -m32 $(SRC) -o $(WINDOWS_EXE) $(SDL_LIB_WIN)
 
-test:
+test-mac:
 	./$(PROJECT_CODE)
+
+test-win:
+	$(WINDOWS_EXE)

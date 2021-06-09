@@ -27,19 +27,24 @@ void PlayerInit(u8 i) {
 }
 
 void PlayerInput(u8 i) {
-    if(!players[i].active || !players[i].controllable) {
+    if(
+        !players[i].active || !players[i].controllable
+        || players[i].clawLine.active
+    ) {
         return;
     }
 
-    int shootCode, leftCode, rightCode;
+    int shootCode, clawCode, leftCode, rightCode;
 
     // Map scancodes
     if(players[i].index) {
         shootCode = SDL_SCANCODE_G;
+        clawCode = SDL_SCANCODE_H;
         leftCode = SDL_SCANCODE_A;
         rightCode = SDL_SCANCODE_D;
     } else {
         shootCode = SDL_SCANCODE_Z;
+        clawCode = SDL_SCANCODE_X;
         leftCode = SDL_SCANCODE_LEFT;
         rightCode = SDL_SCANCODE_RIGHT;
     }
@@ -57,6 +62,15 @@ void PlayerInput(u8 i) {
         }
     } else if(players[i].shootPressed) {
         players[i].shootPressed = 0;
+    }
+
+    if(controlKeys[clawCode]) {
+        if(!players[i].clawPressed) {
+            ClawLineFire(&players[i].clawLine, players[i].rect.x, players[i].rect.y);
+            players[i].clawPressed = 1;
+        }
+    } else if(players[i].clawPressed) {
+        players[i].clawPressed = 0;
     }
 }
 
@@ -77,6 +91,8 @@ void PlayerUpdate(u8 i) {
     if(!players[i].active) {
         return;
     }
+
+    ClawLineUpdate(&players[i].clawLine);
 
     if(players[i].killTime) {
         if(players[i].killTime == 120) {
@@ -112,6 +128,9 @@ void PlayerDraw(u8 i) {
         PrintFont(24, 0, "1P");
         PrintFontNumber(56, 8, players[i].score, 99999999);
     }
+
+    // Draw ClawLine
+    ClawLineDraw(&players[i].clawLine);
 
     // Dying?
     if(players[i].killTime) {

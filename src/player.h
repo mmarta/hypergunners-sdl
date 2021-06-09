@@ -6,13 +6,16 @@
 #include "graphics.h"
 #include "collision.h"
 #include "bullet.h"
+#include "clawline.h"
 
 #define PLAYER_SIZE 16
 #define PLAYER_TOTAL 2
 
 typedef struct {
-    u8 active, lives, animTime, killTime, shootPressed, controllable, index;
+    u8 active, lives, animTime, killTime;
+    u8 clawPressed, shootPressed, controllable, index;
     u32 score;
+    ClawLine clawLine;
     SDL_Rect rect, spriteRect;
     Hitbox hitbox;
 } Player;

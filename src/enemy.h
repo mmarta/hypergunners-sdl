@@ -18,7 +18,7 @@ typedef struct {
     u16 score;
     Hitbox hitbox;
     char dirDelta;
-    u8 active, animTime, killTime, multiplier, type;
+    u8 active, animTime, killTime, multiplier, type, grabbed;
 } Enemy;
 
 extern Enemy enemies[];
