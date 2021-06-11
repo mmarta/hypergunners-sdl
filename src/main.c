@@ -80,7 +80,17 @@ int main(int argc, char *argv[]) {
 	        while(j < PLAYER_BULLET_TOTAL) {
 	            if(HitboxCollision(&enemies[i].hitbox, &playerBullets[j].hitbox)) {
 	                EnemyKill(i, &players[j / PLAYER_BULLET_PER_PLAYER], 1);
-	                PlayerBulletDeactivate(j);
+	                PlayerBulletDeactivate(&playerBullets[j]);
+	                break;
+	            }
+	            j++;
+	        }
+
+	        j = 0;
+	        while(j < MULTIPLE_BULLET_TOTAL) {
+	            if(HitboxCollision(&enemies[i].hitbox, &multipleBullets[j].hitbox)) {
+	                EnemyKill(i, &players[j / MULTIPLE_BULLET_PER_PLAYER], 1);
+	                PlayerBulletDeactivate(&multipleBullets[j]);
 	                break;
 	            }
 	            j++;
@@ -97,14 +107,18 @@ int main(int argc, char *argv[]) {
 	            j++;
 	        }
 
-	        // Also check player collision!
+	        // Also check player & clawline collision!
 	        j = 0;
 	        while(j < PLAYER_TOTAL) {
 	            if(HitboxCollision(&enemies[i].hitbox, &players[j].hitbox)) {
 	                EnemyKill(i, &players[j], 1);
 	                PlayerKill(j);
 	                break;
-	            }
+	            } else if(HitboxCollision(&enemies[i].hitbox, &players[j].clawLine.hitbox)) {
+                    EnemyGrab(i, &players[j]);
+                    ClawLineReturn(&players[j].clawLine, 1);
+                    break;
+                }
 	            j++;
 	        }
 
@@ -136,7 +150,13 @@ int main(int argc, char *argv[]) {
 
 		i = 0;
 	    while(i < PLAYER_BULLET_TOTAL) {
-	        PlayerBulletUpdate(i);
+	        PlayerBulletUpdate(&playerBullets[i]);
+	        i++;
+	    }
+
+        i = 0;
+	    while(i < MULTIPLE_BULLET_TOTAL) {
+	        PlayerBulletUpdate(&multipleBullets[i]);
 	        i++;
 	    }
 
@@ -161,7 +181,13 @@ int main(int argc, char *argv[]) {
 
 		i = 0;
 	    while(i < PLAYER_BULLET_TOTAL) {
-	        PlayerBulletDraw(i);
+	        PlayerBulletDraw(&playerBullets[i]);
+	        i++;
+	    }
+
+        i = 0;
+	    while(i < MULTIPLE_BULLET_TOTAL) {
+	        PlayerBulletDraw(&multipleBullets[i]);
 	        i++;
 	    }
 

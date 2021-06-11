@@ -11,8 +11,8 @@ void PlayerInit(u8 i) {
 
     players[i].shootPressed = 0;
     players[i].controllable = 1;
-    players[i].hitbox.rect.w = PLAYER_SIZE / 2;
-    players[i].hitbox.rect.h = PLAYER_SIZE / 2;
+    players[i].hitbox.rect.w = 6;
+    players[i].hitbox.rect.h = 6;
     players[i].hitbox.collidable = 1;
 
     PlayerMove(i, 104, 224);
@@ -58,6 +58,7 @@ void PlayerInput(u8 i) {
     if(controlKeys[shootCode]) {
         if(!players[i].shootPressed) {
             PlayerBulletFireNext(players[i].index, players[i].rect.x, players[i].rect.y);
+            MultipleFire(&players[i].multiple, players[i].index);
             players[i].shootPressed = 1;
         }
     } else if(players[i].shootPressed) {
@@ -65,7 +66,7 @@ void PlayerInput(u8 i) {
     }
 
     if(controlKeys[clawCode]) {
-        if(!players[i].clawPressed) {
+        if(!players[i].clawPressed && !players[i].multiple.active) {
             ClawLineFire(&players[i].clawLine, players[i].rect.x, players[i].rect.y);
             players[i].clawPressed = 1;
         }
@@ -77,14 +78,18 @@ void PlayerInput(u8 i) {
 void PlayerMove(u8 i, int x, int y) {
     players[i].rect.x = x;
     players[i].rect.y = y;
-    players[i].hitbox.rect.x = x + 4;
+    players[i].hitbox.rect.x = x + 5;
     players[i].hitbox.rect.y = y;
+
+    MultipleMoveX(&players[i].multiple, x);
 }
 
 void PlayerKill(u8 i) {
     players[i].hitbox.collidable = 0;
     players[i].controllable = 0;
     players[i].killTime = 1;
+
+    MultipleDeactivate(&players[i].multiple);
 }
 
 void PlayerUpdate(u8 i) {
@@ -93,6 +98,7 @@ void PlayerUpdate(u8 i) {
     }
 
     ClawLineUpdate(&players[i].clawLine);
+    MultipleUpdate(&players[i].multiple);
 
     if(players[i].killTime) {
         if(players[i].killTime == 120) {
@@ -129,8 +135,9 @@ void PlayerDraw(u8 i) {
         PrintFontNumber(56, 8, players[i].score, 99999999);
     }
 
-    // Draw ClawLine
+    // Draw ClawLine & Multiple
     ClawLineDraw(&players[i].clawLine);
+    MultipleDraw(&players[i].multiple);
 
     // Dying?
     if(players[i].killTime) {

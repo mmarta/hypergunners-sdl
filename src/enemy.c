@@ -21,6 +21,8 @@ void EnemyInit(u8 i) {
     enemies[i].srcRect.w = ENEMY_SIZE;
     enemies[i].srcRect.h = ENEMY_SIZE;
     enemies[i].active = 0;
+    enemies[i].killTime = 0;
+    enemies[i].clawLinedPlayer = NULL;
 }
 
 void EnemyKill(u8 i, Player *player, u8 multiplier) {
@@ -40,7 +42,15 @@ void EnemyKill(u8 i, Player *player, u8 multiplier) {
 void EnemyDeactivate(u8 i) {
     enemies[i].killTime = 0;
     enemies[i].hitbox.collidable = 0;
+    enemies[i].clawLinedPlayer = NULL;
     enemies[i].active = 0;
+}
+
+void EnemyGrab(u8 i, Player *player) {
+    enemies[i].hitbox.collidable = 0;
+    enemies[i].rect.x = player->clawLine.rect.x;
+    enemies[i].rect.y = player->clawLine.rect.y;
+    enemies[i].clawLinedPlayer = player;
 }
 
 void EnemyUpdate(u8 i) {
@@ -59,6 +69,27 @@ void EnemyUpdate(u8 i) {
     enemies[i].animTime++;
     if(enemies[i].animTime >= 18) {
         enemies[i].animTime = 0;
+    }
+
+    // Movement
+    if(enemies[i].clawLinedPlayer) {
+        if(!enemies[i].clawLinedPlayer->clawLine.active) {
+            enemies[i].clawLinedPlayer->score += (enemies[i].score << 1);
+            MultipleInit(
+                &enemies[i].clawLinedPlayer->multiple,
+                enemies[i].clawLinedPlayer->rect.x,
+                enemies[i].clawLinedPlayer->rect.y,
+                enemies[i].type == ENEMY_TYPE_SHRAPNEL
+                    ? SPREAD_MULTIPLE : STANDARD_MULTIPLE
+            );
+            EnemyDeactivate(i);
+
+            return;
+        }
+
+        enemies[i].rect.x = enemies[i].clawLinedPlayer->clawLine.rect.x;
+        enemies[i].rect.y = enemies[i].clawLinedPlayer->clawLine.rect.y;
+        return;
     }
 
     if(enemies[i].rect.y < FAR_Y) {

@@ -6,6 +6,7 @@
 #include "graphics.h"
 #include "collision.h"
 #include "bullet.h"
+#include "multiple.h"
 #include "clawline.h"
 
 #define PLAYER_SIZE 16
@@ -18,6 +19,7 @@ typedef struct {
     ClawLine clawLine;
     SDL_Rect rect, spriteRect;
     Hitbox hitbox;
+    Multiple multiple;
 } Player;
 
 extern Player players[];

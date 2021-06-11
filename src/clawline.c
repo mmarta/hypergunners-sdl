@@ -16,7 +16,7 @@ void ClawLineFire(ClawLine *clawLine, u8 x, u8 y) {
 
     clawLine->grabbed = 0;
     clawLine->hitbox.rect.w = 14;
-    clawLine->hitbox.rect.y = 13;
+    clawLine->hitbox.rect.h = 13;
     clawLine->hitbox.collidable = 1;
     clawLine->returning = 0;
     clawLine->active = 1;
@@ -63,13 +63,13 @@ void ClawLineUpdate(ClawLine *clawLine) {
             ClawLineMove(clawLine, clawLine->rect.x, clawLine->rect.y + 8);
             if(clawLine->rect.y >= FAR_Y) {
                 clawLine->hitbox.rect.w = 12;
-                clawLine->hitbox.rect.y = 9;
+                clawLine->hitbox.rect.h = 9;
             }
         } else if(clawLine->rect.y < MIDDLE_Y) {
             ClawLineMove(clawLine, clawLine->rect.x, clawLine->rect.y + 12);
             if(clawLine->rect.y >= MIDDLE_Y) {
                 clawLine->hitbox.rect.w = 14;
-                clawLine->hitbox.rect.y = 13;
+                clawLine->hitbox.rect.h = 13;
             }
         } else {
             ClawLineMove(clawLine, clawLine->rect.x, clawLine->rect.y + 16);
@@ -86,13 +86,13 @@ void ClawLineUpdate(ClawLine *clawLine) {
             ClawLineMove(clawLine, clawLine->rect.x, clawLine->rect.y - 6);
             if(clawLine->rect.y < FAR_Y) {
                 clawLine->hitbox.rect.w = 8;
-                clawLine->hitbox.rect.y = 6;
+                clawLine->hitbox.rect.h = 6;
             }
         } else {
             ClawLineMove(clawLine, clawLine->rect.x, clawLine->rect.y - 8);
-            if(clawLine->rect.y < FAR_Y) {
+            if(clawLine->rect.y < MIDDLE_Y) {
                 clawLine->hitbox.rect.w = 12;
-                clawLine->hitbox.rect.y = 9;
+                clawLine->hitbox.rect.h = 9;
             }
         }
     }
@@ -104,6 +104,13 @@ void ClawLineDraw(ClawLine *clawLine) {
     }
 
     SDL_RenderCopy(renderer, spritePlayer, &clawLine->srcRect, &clawLine->rect);
+
+    if(DEBUG_HITBOX) {
+        if(clawLine->hitbox.collidable) {
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
+            SDL_RenderFillRect(renderer, &clawLine->hitbox.rect);
+        }
+    }
 
     srcRect.x = 80;
     srcRect.y = 16;

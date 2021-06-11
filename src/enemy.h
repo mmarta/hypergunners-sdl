@@ -5,6 +5,7 @@
 #include "graphics.h"
 #include "collision.h"
 #include "bullet.h"
+#include "clawline.h"
 #include "player.h"
 
 #define ENEMY_SIZE 16
@@ -18,7 +19,8 @@ typedef struct {
     u16 score;
     Hitbox hitbox;
     char dirDelta;
-    u8 active, animTime, killTime, multiplier, type, grabbed;
+    u8 active, animTime, killTime, multiplier, type;
+    Player *clawLinedPlayer;
 } Enemy;
 
 extern Enemy enemies[];
@@ -26,6 +28,7 @@ extern Enemy enemies[];
 void EnemyInitAll();
 void EnemyKill(u8, Player *, u8);
 void EnemyDeactivate(u8);
+void EnemyGrab(u8, Player *);
 void EnemyUpdate(u8);
 void EnemyDraw(u8);
 void EnemySpawnNext();

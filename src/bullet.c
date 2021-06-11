@@ -6,89 +6,130 @@
 
 PlayerBullet playerBullets[PLAYER_BULLET_TOTAL];
 ShrapnelBullet shrapnelBullets[SHRAPNEL_BULLET_TOTAL];
+PlayerBullet multipleBullets[MULTIPLE_BULLET_TOTAL];
+
+void PlayerBulletActivate(PlayerBullet *, u8, u8, PlayerBulletType);
 
 void PlayerBulletFireNext(u8 playerIndex, int x, int y) {
-    u8 i = playerIndex << 1;
+    u8 i = playerIndex * PLAYER_BULLET_PER_PLAYER;
     u8 end = i + PLAYER_BULLET_PER_PLAYER;
 
     while(i < end) {
         if(!playerBullets[i].active) {
-            playerBullets[i].rect.x = x;
-            playerBullets[i].rect.y = y;
-            playerBullets[i].rect.w = PLAYER_BULLET_W;
-            playerBullets[i].rect.h = PLAYER_BULLET_H;
-            playerBullets[i].hitbox.rect.x = playerBullets[i].rect.x;
-            playerBullets[i].hitbox.rect.y = playerBullets[i].rect.y;
-            playerBullets[i].hitbox.rect.w = playerBullets[i].rect.w;
-            playerBullets[i].hitbox.rect.h = playerBullets[i].rect.h;
-            playerBullets[i].srcRect.x = 0;
-            playerBullets[i].srcRect.y = 0;
-            playerBullets[i].srcRect.w = playerBullets[i].rect.w;
-            playerBullets[i].srcRect.h = playerBullets[i].rect.h;
-            playerBullets[i].hitbox.collidable = 1;
-            playerBullets[i].active = 1;
+            PlayerBulletActivate(&playerBullets[i], x, y, STANDARD_BULLET);
             return;
         }
         i++;
     }
 }
 
-void PlayerBulletUpdate(u8 i) {
-    if(!playerBullets[i].active) {
+void PlayerBulletActivate(PlayerBullet *playerBullet, u8 x, u8 y, PlayerBulletType type) {
+    playerBullet->rect.x = x;
+    playerBullet->rect.y = y;
+    playerBullet->rect.w = PLAYER_BULLET_W;
+    playerBullet->rect.h = PLAYER_BULLET_H;
+    playerBullet->hitbox.rect.x = playerBullet->rect.x;
+    playerBullet->hitbox.rect.y = playerBullet->rect.y;
+    playerBullet->hitbox.rect.w = playerBullet->rect.w;
+    playerBullet->hitbox.rect.h = playerBullet->rect.h;
+    playerBullet->srcRect.x = 0;
+    playerBullet->srcRect.y = 0;
+    playerBullet->srcRect.w = playerBullet->rect.w;
+    playerBullet->srcRect.h = playerBullet->rect.h;
+    playerBullet->hitbox.collidable = 1;
+    playerBullet->active = 1;
+}
+
+void PlayerBulletUpdate(PlayerBullet *playerBullet) {
+    if(!playerBullet->active) {
         return;
     }
 
-    if(playerBullets[i].rect.y < FAR_Y) {
-        playerBullets[i].rect.y -= 2;
-        playerBullets[i].hitbox.rect.y -= 2;
-        if(playerBullets[i].rect.y < END_Y) {
-            PlayerBulletDeactivate(i);
+    if(playerBullet->rect.y < FAR_Y) {
+        playerBullet->rect.y -= 2;
+        playerBullet->hitbox.rect.y -= 2;
+        if(playerBullet->rect.y < END_Y) {
+            PlayerBulletDeactivate(playerBullet);
         }
-    } else if(playerBullets[i].rect.y < MIDDLE_Y) {
-        playerBullets[i].rect.y -= 3;
-        playerBullets[i].hitbox.rect.y -= 3;
-        if(playerBullets[i].rect.y < FAR_Y) {
-            playerBullets[i].hitbox.rect.x += 2;
-            playerBullets[i].hitbox.rect.w -= 4;
-            playerBullets[i].hitbox.rect.h -= 2;
+    } else if(playerBullet->rect.y < MIDDLE_Y) {
+        playerBullet->rect.y -= 3;
+        playerBullet->hitbox.rect.y -= 3;
+        if(playerBullet->rect.y < FAR_Y) {
+            playerBullet->hitbox.rect.x += 2;
+            playerBullet->hitbox.rect.w -= 4;
+            playerBullet->hitbox.rect.h -= 2;
         }
     } else {
-        playerBullets[i].rect.y -= 4;
-        playerBullets[i].hitbox.rect.y -= 4;
-        if(playerBullets[i].rect.y < MIDDLE_Y) {
-            playerBullets[i].hitbox.rect.x += 2;
-            playerBullets[i].hitbox.rect.w -= 4;
-            playerBullets[i].hitbox.rect.h -= 4;
+        playerBullet->rect.y -= 4;
+        playerBullet->hitbox.rect.y -= 4;
+        if(playerBullet->rect.y < MIDDLE_Y) {
+            playerBullet->hitbox.rect.x += 2;
+            playerBullet->hitbox.rect.w -= 4;
+            playerBullet->hitbox.rect.h -= 4;
         }
     }
 }
 
-void PlayerBulletDraw(u8 i) {
-    if(!playerBullets[i].active) {
+void PlayerBulletDraw(PlayerBullet *playerBullet) {
+    if(!playerBullet->active) {
         return;
     }
 
-    if(playerBullets[i].rect.y < FAR_Y) {
-        playerBullets[i].srcRect.x = 160;
-    } else if(playerBullets[i].rect.y < MIDDLE_Y) {
-        playerBullets[i].srcRect.x = 144;
+    if(playerBullet->rect.y < FAR_Y) {
+        playerBullet->srcRect.x = 160;
+    } else if(playerBullet->rect.y < MIDDLE_Y) {
+        playerBullet->srcRect.x = 144;
     } else {
-        playerBullets[i].srcRect.x = 128;
+        playerBullet->srcRect.x = 128;
     }
 
-    SDL_RenderCopy(renderer, spritePlayer, &playerBullets[i].srcRect, &playerBullets[i].rect);
+    SDL_RenderCopy(renderer, spritePlayer, &playerBullet->srcRect, &playerBullet->rect);
 
     if(DEBUG_HITBOX) {
-        if(playerBullets[i].hitbox.collidable) {
+        if(playerBullet->hitbox.collidable) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
-            SDL_RenderFillRect(renderer, &playerBullets[i].hitbox.rect);
+            SDL_RenderFillRect(renderer, &playerBullet->hitbox.rect);
         }
     }
 }
 
-void PlayerBulletDeactivate(u8 i) {
-    playerBullets[i].hitbox.collidable = 0;
-    playerBullets[i].active = 0;
+void PlayerBulletDeactivate(PlayerBullet *playerBullet) {
+    playerBullet->hitbox.collidable = 0;
+    playerBullet->active = 0;
+}
+
+/***
+* MULTIPLE BULLET CODE (EXTENSION OF PLAYER)
+*/
+
+void MultipleBulletFireNext(u8 playerIndex, int x, int y, PlayerBulletType type) {
+    u8 i = playerIndex * MULTIPLE_BULLET_PER_PLAYER;
+    u8 end = i + PLAYER_BULLET_PER_PLAYER;
+    u8 greaterEnd;
+
+    switch(type) {
+        case DOUBLE_BULLET:
+            greaterEnd = i + MULTIPLE_BULLET_PER_PLAYER;
+            x -= (PLAYER_BULLET_W >> 1);
+            break;
+        default:
+            greaterEnd = i + PLAYER_BULLET_PER_PLAYER;
+    }
+
+    while(i < greaterEnd) {
+        while(i < end) {
+            if(!multipleBullets[i].active) {
+                PlayerBulletActivate(&multipleBullets[i], x, y, type);
+                break;
+            }
+            i++;
+        }
+
+        i = end;
+        x += PLAYER_BULLET_W;
+        end += PLAYER_BULLET_PER_PLAYER;
+    }
+
 }
 
 /***
