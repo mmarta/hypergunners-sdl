@@ -65,15 +65,6 @@ void BackgroundDraw() {
     destRect.y = 176 + (lineTime << 2);
     SDL_RenderFillRect(renderer, &destRect);
 
-    /*destRect.y = 95;
-    SDL_RenderFillRect(renderer, &destRect);
-    destRect.y = 95 - lineTime;
-    SDL_RenderFillRect(renderer, &destRect);
-    destRect.y = 79 - (lineTime << 1);
-    SDL_RenderFillRect(renderer, &destRect);
-    destRect.y = 47 - (lineTime << 2);
-    SDL_RenderFillRect(renderer, &destRect);*/
-
     i = 0;
     while(i < STAR_TOTAL) {
         SDL_SetRenderDrawColor(renderer, backgroundStars[i].r, backgroundStars[i].g, backgroundStars[i].b, 255);

@@ -4,130 +4,126 @@
 * PLAYER BULLET CODE
 */
 
-PlayerBullet playerBullets[PLAYER_BULLET_TOTAL];
-ShrapnelBullet shrapnelBullets[SHRAPNEL_BULLET_TOTAL];
-PlayerBullet multipleBullets[MULTIPLE_BULLET_TOTAL];
+EnemyBullet shrapnelBullets[SHRAPNEL_BULLET_TOTAL];
 
 void PlayerBulletActivate(PlayerBullet *, u8, u8, PlayerBulletType);
 
-void PlayerBulletFireNext(u8 playerIndex, int x, int y) {
-    u8 i = playerIndex * PLAYER_BULLET_PER_PLAYER;
-    u8 end = i + PLAYER_BULLET_PER_PLAYER;
+void PlayerBulletFireNext(PlayerBullet bullets[], int x, int y, u8 count) {
+    u8 i = 0;
 
-    while(i < end) {
-        if(!playerBullets[i].active) {
-            PlayerBulletActivate(&playerBullets[i], x, y, STANDARD_BULLET);
+    while(i < count) {
+        if(!bullets[i].active) {
+            PlayerBulletActivate(&bullets[i], x, y, STANDARD_PLAYER_BULLET_TYPE);
             return;
         }
         i++;
     }
 }
 
-void PlayerBulletActivate(PlayerBullet *playerBullet, u8 x, u8 y, PlayerBulletType type) {
-    playerBullet->rect.x = x;
-    playerBullet->rect.y = y;
-    playerBullet->rect.w = PLAYER_BULLET_W;
-    playerBullet->rect.h = PLAYER_BULLET_H;
-    playerBullet->hitbox.rect.x = playerBullet->rect.x;
-    playerBullet->hitbox.rect.y = playerBullet->rect.y;
-    playerBullet->hitbox.rect.w = playerBullet->rect.w;
-    playerBullet->hitbox.rect.h = playerBullet->rect.h;
-    playerBullet->srcRect.x = 0;
-    playerBullet->srcRect.y = 0;
-    playerBullet->srcRect.w = playerBullet->rect.w;
-    playerBullet->srcRect.h = playerBullet->rect.h;
-    playerBullet->hitbox.collidable = 1;
-    playerBullet->active = 1;
+void PlayerBulletActivate(PlayerBullet *bullet, u8 x, u8 y, PlayerBulletType type) {
+    bullet->rect.x = x;
+    bullet->rect.y = y;
+    bullet->rect.w = PLAYER_BULLET_W;
+    bullet->rect.h = PLAYER_BULLET_H;
+    bullet->hitbox.rect.x = bullet->rect.x;
+    bullet->hitbox.rect.y = bullet->rect.y;
+    bullet->hitbox.rect.w = bullet->rect.w;
+    bullet->hitbox.rect.h = bullet->rect.h;
+    bullet->srcRect.x = 0;
+    bullet->srcRect.y = 0;
+    bullet->srcRect.w = bullet->rect.w;
+    bullet->srcRect.h = bullet->rect.h;
+    bullet->hitbox.collidable = 1;
+    bullet->active = 1;
 }
 
-void PlayerBulletUpdate(PlayerBullet *playerBullet) {
-    if(!playerBullet->active) {
+void PlayerBulletUpdate(PlayerBullet *bullet) {
+    if(!bullet->active) {
         return;
     }
 
-    if(playerBullet->rect.y < FAR_Y) {
-        playerBullet->rect.y -= 2;
-        playerBullet->hitbox.rect.y -= 2;
-        if(playerBullet->rect.y < END_Y) {
-            PlayerBulletDeactivate(playerBullet);
+    if(bullet->rect.y < FAR_Y) {
+        bullet->rect.y -= 2;
+        bullet->hitbox.rect.y -= 2;
+        if(bullet->rect.y < END_Y) {
+            PlayerBulletDeactivate(bullet);
         }
-    } else if(playerBullet->rect.y < MIDDLE_Y) {
-        playerBullet->rect.y -= 3;
-        playerBullet->hitbox.rect.y -= 3;
-        if(playerBullet->rect.y < FAR_Y) {
-            playerBullet->hitbox.rect.x += 2;
-            playerBullet->hitbox.rect.w -= 4;
-            playerBullet->hitbox.rect.h -= 2;
+    } else if(bullet->rect.y < MIDDLE_Y) {
+        bullet->rect.y -= 3;
+        bullet->hitbox.rect.y -= 3;
+        if(bullet->rect.y < FAR_Y) {
+            bullet->hitbox.rect.x += 2;
+            bullet->hitbox.rect.w -= 4;
+            bullet->hitbox.rect.h -= 2;
         }
     } else {
-        playerBullet->rect.y -= 4;
-        playerBullet->hitbox.rect.y -= 4;
-        if(playerBullet->rect.y < MIDDLE_Y) {
-            playerBullet->hitbox.rect.x += 2;
-            playerBullet->hitbox.rect.w -= 4;
-            playerBullet->hitbox.rect.h -= 4;
+        bullet->rect.y -= 4;
+        bullet->hitbox.rect.y -= 4;
+        if(bullet->rect.y < MIDDLE_Y) {
+            bullet->hitbox.rect.x += 2;
+            bullet->hitbox.rect.w -= 4;
+            bullet->hitbox.rect.h -= 4;
         }
     }
 }
 
-void PlayerBulletDraw(PlayerBullet *playerBullet) {
-    if(!playerBullet->active) {
+void PlayerBulletDraw(PlayerBullet *bullet) {
+    if(!bullet->active) {
         return;
     }
 
-    if(playerBullet->rect.y < FAR_Y) {
-        playerBullet->srcRect.x = 160;
-    } else if(playerBullet->rect.y < MIDDLE_Y) {
-        playerBullet->srcRect.x = 144;
+    if(bullet->rect.y < FAR_Y) {
+        bullet->srcRect.x = 160;
+    } else if(bullet->rect.y < MIDDLE_Y) {
+        bullet->srcRect.x = 144;
     } else {
-        playerBullet->srcRect.x = 128;
+        bullet->srcRect.x = 128;
     }
 
-    SDL_RenderCopy(renderer, spritePlayer, &playerBullet->srcRect, &playerBullet->rect);
+    SDL_RenderCopy(renderer, spritePlayer, &bullet->srcRect, &bullet->rect);
 
     if(DEBUG_HITBOX) {
-        if(playerBullet->hitbox.collidable) {
+        if(bullet->hitbox.collidable) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
-            SDL_RenderFillRect(renderer, &playerBullet->hitbox.rect);
+            SDL_RenderFillRect(renderer, &bullet->hitbox.rect);
         }
     }
 }
 
-void PlayerBulletDeactivate(PlayerBullet *playerBullet) {
-    playerBullet->hitbox.collidable = 0;
-    playerBullet->active = 0;
+void PlayerBulletDeactivate(PlayerBullet *bullet) {
+    bullet->hitbox.collidable = 0;
+    bullet->active = 0;
 }
 
 /***
 * MULTIPLE BULLET CODE (EXTENSION OF PLAYER)
 */
 
-void MultipleBulletFireNext(u8 playerIndex, int x, int y, PlayerBulletType type) {
-    u8 i = playerIndex * MULTIPLE_BULLET_PER_PLAYER;
-    u8 end = i + PLAYER_BULLET_PER_PLAYER;
+void MultipleBulletFireNext(PlayerBullet bullets[], int x, int y, PlayerBulletType type, u8 roundCount, u8 fullCount) {
+    u8 i = 0;
     u8 greaterEnd;
 
     switch(type) {
-        case DOUBLE_BULLET:
-            greaterEnd = i + MULTIPLE_BULLET_PER_PLAYER;
+        case DOUBLE_PLAYER_BULLET_TYPE:
+            greaterEnd = fullCount;
             x -= (PLAYER_BULLET_W >> 1);
             break;
         default:
-            greaterEnd = i + PLAYER_BULLET_PER_PLAYER;
+            greaterEnd = roundCount;
     }
 
     while(i < greaterEnd) {
-        while(i < end) {
-            if(!multipleBullets[i].active) {
-                PlayerBulletActivate(&multipleBullets[i], x, y, type);
+        while(i < roundCount) {
+            if(!bullets[i].active) {
+                PlayerBulletActivate(&bullets[i], x, y, type);
                 break;
             }
             i++;
         }
 
-        i = end;
+        i = roundCount;
         x += PLAYER_BULLET_W;
-        end += PLAYER_BULLET_PER_PLAYER;
+        roundCount += roundCount;
     }
 
 }
@@ -168,38 +164,38 @@ void ShrapnelBulletSpray(int enemyX, int enemyY, u8 associatedPlayerIndex, u8 mu
     }
 }
 
-void ShrapnelBulletUpdate(u8 i) {
-    if(!shrapnelBullets[i].active) {
+void ShrapnelBulletUpdate(EnemyBullet *bullet) {
+    if(!bullet->active) {
         return;
     }
 
     if(
-        shrapnelBullets[i].rect.x + shrapnelBullets[i].rect.w <= 0
-        || shrapnelBullets[i].rect.x >= PLAYABLE_W
+        bullet->rect.x + bullet->rect.w <= 0
+        || bullet->rect.x >= PLAYABLE_W
     ) {
-        ShrapnelBulletDeactivate(i);
+        ShrapnelBulletDeactivate(bullet);
     } else if(
-        shrapnelBullets[i].rect.y + shrapnelBullets[i].rect.h <= 0
-        || shrapnelBullets[i].rect.y >= PLAYABLE_H
+        bullet->rect.y + bullet->rect.h <= 0
+        || bullet->rect.y >= PLAYABLE_H
     ) {
-        ShrapnelBulletDeactivate(i);
+        ShrapnelBulletDeactivate(bullet);
     }
 
-    shrapnelBullets[i].rect.x += shrapnelBullets[i].dX;
-    shrapnelBullets[i].rect.y += shrapnelBullets[i].dY;
-    shrapnelBullets[i].hitbox.rect.x += shrapnelBullets[i].dX;
-    shrapnelBullets[i].hitbox.rect.y += shrapnelBullets[i].dY;
+    bullet->rect.x += bullet->dX;
+    bullet->rect.y += bullet->dY;
+    bullet->hitbox.rect.x += bullet->dX;
+    bullet->hitbox.rect.y += bullet->dY;
 }
 
-void ShrapnelBulletDraw(u8 i) {
-    if(!shrapnelBullets[i].active) {
+void ShrapnelBulletDraw(EnemyBullet *bullet) {
+    if(!bullet->active) {
         return;
     }
 
-    SDL_RenderCopy(renderer, spriteEnemy, &shrapnelBullets[i].srcRect, &shrapnelBullets[i].rect);
+    SDL_RenderCopy(renderer, spriteEnemy, &bullet->srcRect, &bullet->rect);
 }
 
-void ShrapnelBulletDeactivate(u8 i) {
-    shrapnelBullets[i].hitbox.collidable = 0;
-    shrapnelBullets[i].active = 0;
+void ShrapnelBulletDeactivate(EnemyBullet *bullet) {
+    bullet->hitbox.collidable = 0;
+    bullet->active = 0;
 }

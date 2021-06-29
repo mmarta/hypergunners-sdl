@@ -1,191 +1,191 @@
 #include "enemy.h"
 
-void EnemyInit(u8);
-void EnemyDrawUFO(u8, u8);
-void EnemyDrawStandard(u8);
-void EnemyDrawShrapnel(u8);
+void EnemyInit(Enemy *);
+void EnemyDrawUFO(Enemy *, u8);
+void EnemyDrawStandard(Enemy *);
+void EnemyDrawShrapnel(Enemy *);
 
 Enemy enemies[ENEMY_TOTAL];
 
 void EnemyInitAll() {
     u8 i = 0;
     while(i < ENEMY_TOTAL) {
-        EnemyInit(i);
+        EnemyInit(&enemies[i]);
         i++;
     }
 }
 
-void EnemyInit(u8 i) {
-    enemies[i].rect.w = ENEMY_SIZE;
-    enemies[i].rect.h = ENEMY_SIZE;
-    enemies[i].srcRect.w = ENEMY_SIZE;
-    enemies[i].srcRect.h = ENEMY_SIZE;
-    enemies[i].active = 0;
-    enemies[i].killTime = 0;
-    enemies[i].clawLinedPlayer = NULL;
+void EnemyInit(Enemy *enemy) {
+    enemy->rect.w = ENEMY_SIZE;
+    enemy->rect.h = ENEMY_SIZE;
+    enemy->srcRect.w = ENEMY_SIZE;
+    enemy->srcRect.h = ENEMY_SIZE;
+    enemy->active = 0;
+    enemy->killTime = 0;
+    enemy->clawLinedPlayer = NULL;
 }
 
-void EnemyKill(u8 i, Player *player, u8 multiplier) {
+void EnemyKill(Enemy *enemy, Player *player, u8 multiplier) {
     if(!multiplier) {
         multiplier = 1;
     }
 
-    enemies[i].killTime = 1;
-    enemies[i].multiplier = multiplier;
-    enemies[i].hitbox.collidable = 0;
-    if(enemies[i].type == ENEMY_TYPE_SHRAPNEL) {
-        ShrapnelBulletSpray(enemies[i].rect.x, enemies[i].rect.y, player->index, multiplier == 32 ? multiplier : multiplier * 2);
+    enemy->killTime = 1;
+    enemy->multiplier = multiplier;
+    enemy->hitbox.collidable = 0;
+    if(enemy->type == SHRAPNEL_ENEMY_TYPE) {
+        ShrapnelBulletSpray(enemy->rect.x, enemy->rect.y, player->index, multiplier == 32 ? multiplier : multiplier * 2);
     }
-    player->score += (enemies[i].score * enemies[i].multiplier);
+    player->score += (enemy->score * enemy->multiplier);
 }
 
-void EnemyDeactivate(u8 i) {
-    enemies[i].killTime = 0;
-    enemies[i].hitbox.collidable = 0;
-    enemies[i].clawLinedPlayer = NULL;
-    enemies[i].active = 0;
+void EnemyDeactivate(Enemy *enemy) {
+    enemy->killTime = 0;
+    enemy->hitbox.collidable = 0;
+    enemy->clawLinedPlayer = NULL;
+    enemy->active = 0;
 }
 
-void EnemyGrab(u8 i, Player *player) {
-    enemies[i].hitbox.collidable = 0;
-    enemies[i].rect.x = player->clawLine.rect.x;
-    enemies[i].rect.y = player->clawLine.rect.y;
-    enemies[i].clawLinedPlayer = player;
+void EnemyGrab(Enemy *enemy, Player *player) {
+    enemy->hitbox.collidable = 0;
+    enemy->rect.x = player->clawLine.rect.x;
+    enemy->rect.y = player->clawLine.rect.y;
+    enemy->clawLinedPlayer = player;
 }
 
-void EnemyUpdate(u8 i) {
-    if(!enemies[i].active) {
+void EnemyUpdate(Enemy *enemy) {
+    if(!enemy->active) {
         return;
     }
 
-    if(enemies[i].killTime) {
-        enemies[i].killTime++;
-        if(enemies[i].killTime >= 14) {
-            EnemyDeactivate(i);
+    if(enemy->killTime) {
+        enemy->killTime++;
+        if(enemy->killTime >= 14) {
+            EnemyDeactivate(enemy);
         }
         return;
     }
 
-    enemies[i].animTime++;
-    if(enemies[i].animTime >= 18) {
-        enemies[i].animTime = 0;
+    enemy->animTime++;
+    if(enemy->animTime >= 18) {
+        enemy->animTime = 0;
     }
 
     // Movement
-    if(enemies[i].clawLinedPlayer) {
-        if(!enemies[i].clawLinedPlayer->clawLine.active) {
-            enemies[i].clawLinedPlayer->score += (enemies[i].score << 1);
+    if(enemy->clawLinedPlayer) {
+        if(!enemy->clawLinedPlayer->clawLine.active) {
+            enemy->clawLinedPlayer->score += (enemy->score << 1);
             MultipleInit(
-                &enemies[i].clawLinedPlayer->multiple,
-                enemies[i].clawLinedPlayer->rect.x,
-                enemies[i].clawLinedPlayer->rect.y,
-                enemies[i].type == ENEMY_TYPE_SHRAPNEL
-                    ? SPREAD_MULTIPLE : STANDARD_MULTIPLE
+                &enemy->clawLinedPlayer->multiple,
+                enemy->clawLinedPlayer->rect.x,
+                enemy->clawLinedPlayer->rect.y,
+                enemy->type == SHRAPNEL_ENEMY_TYPE
+                    ? SPREAD_MULTIPLE_TYPE : STANDARD_MULTIPLE_TYPE
             );
-            EnemyDeactivate(i);
+            EnemyDeactivate(enemy);
 
             return;
         }
 
-        enemies[i].rect.x = enemies[i].clawLinedPlayer->clawLine.rect.x;
-        enemies[i].rect.y = enemies[i].clawLinedPlayer->clawLine.rect.y;
+        enemy->rect.x = enemy->clawLinedPlayer->clawLine.rect.x;
+        enemy->rect.y = enemy->clawLinedPlayer->clawLine.rect.y;
         return;
     }
 
-    if(enemies[i].rect.y < FAR_Y) {
-        if(!(enemies[i].animTime % 2)) {
-            enemies[i].rect.y++;
-            enemies[i].hitbox.rect.y++;
+    if(enemy->rect.y < FAR_Y) {
+        if(!(enemy->animTime % 2)) {
+            enemy->rect.y++;
+            enemy->hitbox.rect.y++;
         }
-        if(enemies[i].rect.y >= FAR_Y) {
-            enemies[i].hitbox.rect.x -= 2;
-            enemies[i].hitbox.rect.w += 4;
-            enemies[i].hitbox.rect.y -= 2;
-            enemies[i].hitbox.rect.h++;
+        if(enemy->rect.y >= FAR_Y) {
+            enemy->hitbox.rect.x -= 2;
+            enemy->hitbox.rect.w += 4;
+            enemy->hitbox.rect.y -= 2;
+            enemy->hitbox.rect.h++;
         }
-    } else if(enemies[i].rect.y < MIDDLE_Y) {
-        enemies[i].rect.y++;
-        enemies[i].hitbox.rect.y++;
-        if(enemies[i].rect.y >= MIDDLE_Y) {
-            enemies[i].hitbox.rect.x -= 2;
-            enemies[i].hitbox.rect.w += 4;
-            enemies[i].hitbox.rect.y -= 3;
-            enemies[i].hitbox.rect.h++;
+    } else if(enemy->rect.y < MIDDLE_Y) {
+        enemy->rect.y++;
+        enemy->hitbox.rect.y++;
+        if(enemy->rect.y >= MIDDLE_Y) {
+            enemy->hitbox.rect.x -= 2;
+            enemy->hitbox.rect.w += 4;
+            enemy->hitbox.rect.y -= 3;
+            enemy->hitbox.rect.h++;
         }
     } else {
-        enemies[i].rect.y++;
-        enemies[i].hitbox.rect.y++;
-        if(enemies[i].rect.y >= 240) {
-            enemies[i].hitbox.collidable = 0;
-            enemies[i].active = 0;
+        enemy->rect.y++;
+        enemy->hitbox.rect.y++;
+        if(enemy->rect.y >= 240) {
+            enemy->hitbox.collidable = 0;
+            enemy->active = 0;
         }
     }
 }
 
-void EnemyDrawUFO(u8 i, u8 srcY) {
-    enemies[i].srcRect.y = srcY;
+void EnemyDrawUFO(Enemy *enemy, u8 srcY) {
+    enemy->srcRect.y = srcY;
 
-    if(enemies[i].rect.y < FAR_Y) {
-        if(enemies[i].animTime % 6 < 3) {
-            enemies[i].srcRect.x = 144;
+    if(enemy->rect.y < FAR_Y) {
+        if(enemy->animTime % 6 < 3) {
+            enemy->srcRect.x = 144;
         } else {
-            enemies[i].srcRect.x = 160;
+            enemy->srcRect.x = 160;
         }
-    } else if(enemies[i].rect.y < MIDDLE_Y) {
-        if(enemies[i].animTime % 9 < 3) {
-            enemies[i].srcRect.x = 96;
-        } else if(enemies[i].animTime % 9 < 6) {
-            enemies[i].srcRect.x = 112;
+    } else if(enemy->rect.y < MIDDLE_Y) {
+        if(enemy->animTime % 9 < 3) {
+            enemy->srcRect.x = 96;
+        } else if(enemy->animTime % 9 < 6) {
+            enemy->srcRect.x = 112;
         } else {
-            enemies[i].srcRect.x = 128;
+            enemy->srcRect.x = 128;
         }
     } else {
-        enemies[i].srcRect.x = (enemies[i].animTime / 3) << 4;
+        enemy->srcRect.x = (enemy->animTime / 3) << 4;
     }
 
-    SDL_RenderCopy(renderer, spriteEnemy, &enemies[i].srcRect, &enemies[i].rect);
+    SDL_RenderCopy(renderer, spriteEnemy, &enemy->srcRect, &enemy->rect);
 }
 
-void EnemyDrawStandard(u8 i) {
-    EnemyDrawUFO(i, 0);
+void EnemyDrawStandard(Enemy *enemy) {
+    EnemyDrawUFO(enemy, 0);
 }
 
-void EnemyDrawShrapnel(u8 i) {
-    EnemyDrawUFO(i, 16);
+void EnemyDrawShrapnel(Enemy *enemy) {
+    EnemyDrawUFO(enemy, 16);
 }
 
-void EnemyDraw(u8 i) {
-    if(!enemies[i].active) {
+void EnemyDraw(Enemy *enemy) {
+    if(!enemy->active) {
         return;
     }
 
-    if(enemies[i].killTime) {
-        enemies[i].srcRect.y = 0;
+    if(enemy->killTime) {
+        enemy->srcRect.y = 0;
 
-        if(enemies[i].killTime < 5) {
-            enemies[i].srcRect.x = 176;
-        } else if(enemies[i].killTime < 8) {
-            enemies[i].srcRect.x = 192;
-        } else if(enemies[i].killTime < 11) {
-            enemies[i].srcRect.x = 208;
+        if(enemy->killTime < 5) {
+            enemy->srcRect.x = 176;
+        } else if(enemy->killTime < 8) {
+            enemy->srcRect.x = 192;
+        } else if(enemy->killTime < 11) {
+            enemy->srcRect.x = 208;
         } else {
-            enemies[i].srcRect.x = 224;
+            enemy->srcRect.x = 224;
         }
 
-        SDL_RenderCopy(renderer, spriteEnemy, &enemies[i].srcRect, &enemies[i].rect);
+        SDL_RenderCopy(renderer, spriteEnemy, &enemy->srcRect, &enemy->rect);
         return;
     }
 
-    if(enemies[i].type == ENEMY_TYPE_STANDARD) {
-        EnemyDrawStandard(i);
-    } else if(enemies[i].type == ENEMY_TYPE_SHRAPNEL) {
-        EnemyDrawShrapnel(i);
+    if(enemy->type == STANDARD_ENEMY_TYPE) {
+        EnemyDrawStandard(enemy);
+    } else if(enemy->type == SHRAPNEL_ENEMY_TYPE) {
+        EnemyDrawShrapnel(enemy);
     }
 
     if(DEBUG_HITBOX) {
-        if(enemies[i].hitbox.collidable) {
+        if(enemy->hitbox.collidable) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
-            SDL_RenderFillRect(renderer, &enemies[i].hitbox.rect);
+            SDL_RenderFillRect(renderer, &enemy->hitbox.rect);
         }
     }
 }
@@ -202,12 +202,12 @@ void EnemySpawnNext() {
             enemies[i].hitbox.rect.h = 4;
             enemies[i].hitbox.collidable = 1;
             enemies[i].type = rand() % 10 < 4
-                ? ENEMY_TYPE_SHRAPNEL
-                : ENEMY_TYPE_STANDARD;
+                ? SHRAPNEL_ENEMY_TYPE
+                : STANDARD_ENEMY_TYPE;
 
             // Scoring
             switch(enemies[i].type) {
-                case ENEMY_TYPE_SHRAPNEL:
+                case SHRAPNEL_ENEMY_TYPE:
                     enemies[i].score = 300;
                     break;
                 default:

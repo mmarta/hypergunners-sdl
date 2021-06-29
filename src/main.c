@@ -10,7 +10,7 @@ u8 frameTime = 0;
 
 int main(int argc, char *argv[]) {
     u16 i = 0;
-	u8 j;
+	u8 j, k;
 
     // Begin
     SDL_Init(SDL_INIT_VIDEO);
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 	BackgroundInit();
 	DrawCrossHatchAndWait();
 
-	PlayerInit(0);
+	PlayerInit(&players[0], 0);
 	//PlayerInit(1);
 	EnemyInitAll();
 
@@ -69,58 +69,59 @@ int main(int argc, char *argv[]) {
 
 		// Input
 		ReadAllControls();
-		PlayerInput(0);
-		PlayerInput(1);
+		PlayerInput(&players[0]);
+		PlayerInput(&players[1]);
 
 		// Check collisions first
 	    i = 0;
 	    while(i < ENEMY_TOTAL) {
-            // Player Bullet Collision First
-	        j = 0;
-	        while(j < PLAYER_BULLET_TOTAL) {
-	            if(HitboxCollision(&enemies[i].hitbox, &playerBullets[j].hitbox)) {
-	                EnemyKill(i, &players[j / PLAYER_BULLET_PER_PLAYER], 1);
-	                PlayerBulletDeactivate(&playerBullets[j]);
-	                break;
-	            }
-	            j++;
-	        }
+            // Player Collisions First
 
 	        j = 0;
-	        while(j < MULTIPLE_BULLET_TOTAL) {
-	            if(HitboxCollision(&enemies[i].hitbox, &multipleBullets[j].hitbox)) {
-	                EnemyKill(i, &players[j / MULTIPLE_BULLET_PER_PLAYER], 1);
-	                PlayerBulletDeactivate(&multipleBullets[j]);
+	        while(j < PLAYER_TOTAL) {
+	            if(HitboxCollision(&enemies[i].hitbox, &players[j].hitbox)) {
+	                EnemyKill(&enemies[i], &players[j], 1);
+	                PlayerKill(&players[j]);
 	                break;
-	            }
+	            } else if(HitboxCollision(&enemies[i].hitbox, &players[j].clawLine.hitbox)) {
+                    EnemyGrab(&enemies[i], &players[j]);
+                    ClawLineReturn(&players[j].clawLine, 1);
+                    break;
+                }
+
+                k = 0;
+    	        while(k < PLAYER_BULLET_TOTAL) {
+    	            if(HitboxCollision(&enemies[i].hitbox, &players[j].bullets[k].hitbox)) {
+    	                EnemyKill(&enemies[i], &players[j], 1);
+    	                PlayerBulletDeactivate(&players[j].bullets[k]);
+    	                break;
+    	            }
+    	            k++;
+    	        }
+
+    	        k = 0;
+    	        while(k < MULTIPLE_BULLET_TOTAL) {
+    	            if(HitboxCollision(&enemies[i].hitbox, &players[j].multiple.bullets[k].hitbox)) {
+    	                EnemyKill(&enemies[i], &players[j], 1);
+    	                PlayerBulletDeactivate(&players[j].multiple.bullets[k]);
+    	                break;
+    	            }
+    	            k++;
+    	        }
+
 	            j++;
 	        }
 
             // Then shrapnel collision
             j = 0;
-	        while(j < SHRAPNEL_BULLET_TOTAL) {
-	            if(HitboxCollision(&enemies[i].hitbox, &shrapnelBullets[j].hitbox)) {
-	                EnemyKill(i, &players[shrapnelBullets[j].associatedPlayerIndex], shrapnelBullets[j].multiplier);
-	                ShrapnelBulletDeactivate(j);
-	                break;
-	            }
-	            j++;
-	        }
-
-	        // Also check player & clawline collision!
-	        j = 0;
-	        while(j < PLAYER_TOTAL) {
-	            if(HitboxCollision(&enemies[i].hitbox, &players[j].hitbox)) {
-	                EnemyKill(i, &players[j], 1);
-	                PlayerKill(j);
-	                break;
-	            } else if(HitboxCollision(&enemies[i].hitbox, &players[j].clawLine.hitbox)) {
-                    EnemyGrab(i, &players[j]);
-                    ClawLineReturn(&players[j].clawLine, 1);
+            while(j < SHRAPNEL_BULLET_TOTAL) {
+                if(HitboxCollision(&enemies[i].hitbox, &shrapnelBullets[j].hitbox)) {
+                    EnemyKill(&enemies[i], &players[shrapnelBullets[j].associatedPlayerIndex], shrapnelBullets[j].multiplier);
+                    ShrapnelBulletDeactivate(&shrapnelBullets[j]);
                     break;
                 }
-	            j++;
-	        }
+                j++;
+            }
 
 	        i++;
 	    }
@@ -131,8 +132,8 @@ int main(int argc, char *argv[]) {
             j = 0;
 	        while(j < SHRAPNEL_BULLET_TOTAL) {
 	            if(HitboxCollision(&players[i].hitbox, &shrapnelBullets[j].hitbox)) {
-	                PlayerKill(i);
-	                ShrapnelBulletDeactivate(j);
+	                PlayerKill(&players[i]);
+	                ShrapnelBulletDeactivate(&shrapnelBullets[j]);
 	                break;
 	            }
 	            j++;
@@ -148,67 +149,43 @@ int main(int argc, char *argv[]) {
 	        EnemySpawnNext();
 	    }
 
-		i = 0;
-	    while(i < PLAYER_BULLET_TOTAL) {
-	        PlayerBulletUpdate(&playerBullets[i]);
-	        i++;
-	    }
-
-        i = 0;
-	    while(i < MULTIPLE_BULLET_TOTAL) {
-	        PlayerBulletUpdate(&multipleBullets[i]);
-	        i++;
-	    }
-
 	    i = 0;
 	    while(i < SHRAPNEL_BULLET_TOTAL) {
-			ShrapnelBulletUpdate(i);
+			ShrapnelBulletUpdate(&shrapnelBullets[i]);
 	        i++;
 	    }
 
 	    i = 0;
 	    while(i < ENEMY_TOTAL) {
-	        EnemyUpdate(i);
+	        EnemyUpdate(&enemies[i]);
 	        i++;
 	    }
 
-	    PlayerUpdate(0);
-		PlayerUpdate(1);
+	    PlayerUpdate(&players[0]);
+		PlayerUpdate(&players[1]);
 
 		// Draw
         ClearScreen();
 		BackgroundDraw();
 
-		i = 0;
-	    while(i < PLAYER_BULLET_TOTAL) {
-	        PlayerBulletDraw(&playerBullets[i]);
-	        i++;
-	    }
-
-        i = 0;
-	    while(i < MULTIPLE_BULLET_TOTAL) {
-	        PlayerBulletDraw(&multipleBullets[i]);
-	        i++;
-	    }
-
 	    i = 0;
 	    while(i < SHRAPNEL_BULLET_TOTAL) {
-	        ShrapnelBulletDraw(i);
+	        ShrapnelBulletDraw(&shrapnelBullets[i]);
 	        i++;
 	    }
 
 		i = 0;
 	    while(i < ENEMY_TOTAL) {
-	        EnemyDraw(i);
+	        EnemyDraw(&enemies[i]);
 	        i++;
 	    }
 
 	    if(frameTime >= 2) {
-	        PlayerDraw(1);
-	        PlayerDraw(0);
+	        PlayerDraw(&players[1]);
+	        PlayerDraw(&players[0]);
 	    } else {
-			PlayerDraw(0);
-	        PlayerDraw(1);
+			PlayerDraw(&players[0]);
+	        PlayerDraw(&players[1]);
 	    }
     }
 

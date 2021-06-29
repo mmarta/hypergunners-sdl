@@ -2,34 +2,34 @@
 
 Player players[PLAYER_TOTAL];
 
-void PlayerInit(u8 i) {
-    players[i].active = 1;
-    players[i].score = 0;
-    players[i].lives = 3;
-    players[i].animTime = 0;
-    players[i].killTime = 0;
+void PlayerInit(Player *player, u8 i) {
+    player->active = 1;
+    player->score = 0;
+    player->lives = 3;
+    player->animTime = 0;
+    player->killTime = 0;
 
-    players[i].shootPressed = 0;
-    players[i].controllable = 1;
-    players[i].hitbox.rect.w = 6;
-    players[i].hitbox.rect.h = 6;
-    players[i].hitbox.collidable = 1;
+    player->shootPressed = 0;
+    player->controllable = 1;
+    player->hitbox.rect.w = 6;
+    player->hitbox.rect.h = 6;
+    player->hitbox.collidable = 1;
 
-    PlayerMove(i, 104, 224);
+    PlayerMove(player, 104, 224);
 
-    players[i].spriteRect.y = 0;
-    players[i].spriteRect.w = PLAYER_SIZE;
-    players[i].spriteRect.h = PLAYER_SIZE;
-    players[i].rect.w = PLAYER_SIZE;
-    players[i].rect.h = PLAYER_SIZE;
+    player->spriteRect.y = 0;
+    player->spriteRect.w = PLAYER_SIZE;
+    player->spriteRect.h = PLAYER_SIZE;
+    player->rect.w = PLAYER_SIZE;
+    player->rect.h = PLAYER_SIZE;
 
-    players[i].index = i;
+    player->index = i;
 }
 
-void PlayerInput(u8 i) {
+void PlayerInput(Player *player) {
     if(
-        !players[i].active || !players[i].controllable
-        || players[i].clawLine.active
+        !player->active || !player->controllable
+        || player->clawLine.active
     ) {
         return;
     }
@@ -37,7 +37,7 @@ void PlayerInput(u8 i) {
     int shootCode, clawCode, leftCode, rightCode;
 
     // Map scancodes
-    if(players[i].index) {
+    if(player->index) {
         shootCode = SDL_SCANCODE_G;
         clawCode = SDL_SCANCODE_H;
         leftCode = SDL_SCANCODE_A;
@@ -49,114 +49,128 @@ void PlayerInput(u8 i) {
         rightCode = SDL_SCANCODE_RIGHT;
     }
 
-    if(controlKeys[leftCode] && players[i].rect.x > 3) {
-        PlayerMove(i, players[i].rect.x - 3, players[i].rect.y);
-    } else if(controlKeys[rightCode] && players[i].rect.x < 205) {
-        PlayerMove(i, players[i].rect.x + 3, players[i].rect.y);
+    if(controlKeys[leftCode] && player->rect.x > 3) {
+        PlayerMove(player, player->rect.x - 3, player->rect.y);
+    } else if(controlKeys[rightCode] && player->rect.x < 205) {
+        PlayerMove(player, player->rect.x + 3, player->rect.y);
     }
 
     if(controlKeys[shootCode]) {
-        if(!players[i].shootPressed) {
-            PlayerBulletFireNext(players[i].index, players[i].rect.x, players[i].rect.y);
-            MultipleFire(&players[i].multiple, players[i].index);
-            players[i].shootPressed = 1;
+        if(!player->shootPressed) {
+            PlayerBulletFireNext(player->bullets, player->rect.x, player->rect.y, PLAYER_BULLETS_COUNT);
+            MultipleFire(&player->multiple);
+            player->shootPressed = 1;
         }
-    } else if(players[i].shootPressed) {
-        players[i].shootPressed = 0;
+    } else if(player->shootPressed) {
+        player->shootPressed = 0;
     }
 
     if(controlKeys[clawCode]) {
-        if(!players[i].clawPressed && !players[i].multiple.active) {
-            ClawLineFire(&players[i].clawLine, players[i].rect.x, players[i].rect.y);
-            players[i].clawPressed = 1;
+        if(!player->clawPressed && !player->multiple.active) {
+            ClawLineFire(&player->clawLine, player->rect.x, player->rect.y);
+            player->clawPressed = 1;
         }
-    } else if(players[i].clawPressed) {
-        players[i].clawPressed = 0;
+    } else if(player->clawPressed) {
+        player->clawPressed = 0;
     }
 }
 
-void PlayerMove(u8 i, int x, int y) {
-    players[i].rect.x = x;
-    players[i].rect.y = y;
-    players[i].hitbox.rect.x = x + 5;
-    players[i].hitbox.rect.y = y;
+void PlayerMove(Player *player, int x, int y) {
+    player->rect.x = x;
+    player->rect.y = y;
+    player->hitbox.rect.x = x + 5;
+    player->hitbox.rect.y = y;
 
-    MultipleMoveX(&players[i].multiple, x);
+    MultipleMoveX(&player->multiple, x);
 }
 
-void PlayerKill(u8 i) {
-    players[i].hitbox.collidable = 0;
-    players[i].controllable = 0;
-    players[i].killTime = 1;
+void PlayerKill(Player *player) {
+    player->hitbox.collidable = 0;
+    player->controllable = 0;
+    player->killTime = 1;
 
-    MultipleDeactivate(&players[i].multiple);
+    MultipleDeactivate(&player->multiple);
 }
 
-void PlayerUpdate(u8 i) {
-    if(!players[i].active) {
+void PlayerUpdate(Player *player) {
+    u8 i;
+    if(!player->active) {
         return;
     }
 
-    ClawLineUpdate(&players[i].clawLine);
-    MultipleUpdate(&players[i].multiple);
+    ClawLineUpdate(&player->clawLine);
+    MultipleUpdate(&player->multiple);
 
-    if(players[i].killTime) {
-        if(players[i].killTime == 120) {
-            players[i].lives--;
-            PlayerMove(i, 104, players[i].rect.y);
-            players[i].controllable = 1;
-        } else if(players[i].killTime == 240) {
-            players[i].killTime = 0;
-            players[i].hitbox.collidable = 1;
-            players[i].animTime = 0;
+    i = 0;
+    while(i < PLAYER_BULLETS_COUNT) {
+        PlayerBulletUpdate(&player->bullets[i]);
+        i++;
+    }
+
+    if(player->killTime) {
+        if(player->killTime == 120) {
+            player->lives--;
+            PlayerMove(player, 104, player->rect.y);
+            player->controllable = 1;
+        } else if(player->killTime == 240) {
+            player->killTime = 0;
+            player->hitbox.collidable = 1;
+            player->animTime = 0;
             return;
         }
 
-        players[i].killTime++;
+        player->killTime++;
     }
 
-    players[i].animTime++;
-    if(players[i].animTime >= 12) {
-        players[i].animTime = 0;
+    player->animTime++;
+    if(player->animTime >= 12) {
+        player->animTime = 0;
     }
 }
 
-void PlayerDraw(u8 i) {
-    u8 killMod, noDraw = 0;
-    if(!players[i].active) {
+void PlayerDraw(Player *player) {
+    u8 i, killMod, noDraw = 0;
+    if(!player->active) {
         return;
     }
 
-    if(players[i].index) {
+    if(player->index) {
         PrintFont(184, 0, "2P");
-        PrintFontNumber(216, 8, players[i].score, 99999999);
+        PrintFontNumber(216, 8, player->score, 99999999);
     } else {
         PrintFont(24, 0, "1P");
-        PrintFontNumber(56, 8, players[i].score, 99999999);
+        PrintFontNumber(56, 8, player->score, 99999999);
     }
 
     // Draw ClawLine & Multiple
-    ClawLineDraw(&players[i].clawLine);
-    MultipleDraw(&players[i].multiple);
+    ClawLineDraw(&player->clawLine);
+    MultipleDraw(&player->multiple);
+
+    // Draw player's bullets
+    i = 0;
+    while(i < PLAYER_BULLETS_COUNT) {
+        PlayerBulletDraw(&player->bullets[i]);
+        i++;
+    }
 
     // Dying?
-    if(players[i].killTime) {
-        if(players[i].killTime < 5) {
-            players[i].spriteRect.x = 176;
-        } else if(players[i].killTime < 9) {
-            players[i].spriteRect.x = 192;
-        } else if(players[i].killTime < 13) {
-            players[i].spriteRect.x = 208;
-        } else if(players[i].killTime < 17) {
-            players[i].spriteRect.x = 224;
-        } else if(players[i].killTime <= 120) {
+    if(player->killTime) {
+        if(player->killTime < 5) {
+            player->spriteRect.x = 176;
+        } else if(player->killTime < 9) {
+            player->spriteRect.x = 192;
+        } else if(player->killTime < 13) {
+            player->spriteRect.x = 208;
+        } else if(player->killTime < 17) {
+            player->spriteRect.x = 224;
+        } else if(player->killTime <= 120) {
             noDraw = 1;
-        } else if(players[i].killTime > 120) {
-            killMod = players[i].killTime % 8;
+        } else if(player->killTime > 120) {
+            killMod = player->killTime % 8;
             if(killMod >= 4) {
                 noDraw = 1;
             } else {
-                players[i].spriteRect.x = players[i].index ? 64 : 0;
+                player->spriteRect.x = player->index ? 64 : 0;
             }
         }
 
@@ -164,35 +178,35 @@ void PlayerDraw(u8 i) {
             return;
         }
 
-        SDL_RenderCopy(renderer, spritePlayer, &players[i].spriteRect, &players[i].rect);
+        SDL_RenderCopy(renderer, spritePlayer, &player->spriteRect, &player->rect);
 
         return;
     }
 
-    if(players[i].index) {
-        if(players[i].animTime < 3) {
-            players[i].spriteRect.x = 80;
-        } else if(players[i].animTime < 6 || players[i].animTime >= 9) {
-            players[i].spriteRect.x = 96;
+    if(player->index) {
+        if(player->animTime < 3) {
+            player->spriteRect.x = 80;
+        } else if(player->animTime < 6 || player->animTime >= 9) {
+            player->spriteRect.x = 96;
         } else {
-            players[i].spriteRect.x = 112;
+            player->spriteRect.x = 112;
         }
     } else {
-        if(players[i].animTime < 3) {
-            players[i].spriteRect.x = 16;
-        } else if(players[i].animTime < 6 || players[i].animTime >= 9) {
-            players[i].spriteRect.x = 32;
+        if(player->animTime < 3) {
+            player->spriteRect.x = 16;
+        } else if(player->animTime < 6 || player->animTime >= 9) {
+            player->spriteRect.x = 32;
         } else {
-            players[i].spriteRect.x = 48;
+            player->spriteRect.x = 48;
         }
     }
 
-    SDL_RenderCopy(renderer, spritePlayer, &players[i].spriteRect, &players[i].rect);
+    SDL_RenderCopy(renderer, spritePlayer, &player->spriteRect, &player->rect);
 
     if(DEBUG_HITBOX) {
-        if(players[i].hitbox.collidable) {
+        if(player->hitbox.collidable) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
-            SDL_RenderFillRect(renderer, &players[i].hitbox.rect);
+            SDL_RenderFillRect(renderer, &player->hitbox.rect);
         }
     }
 }

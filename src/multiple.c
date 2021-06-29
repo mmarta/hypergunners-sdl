@@ -22,14 +22,15 @@ void MultipleInit(Multiple *multiple, u8 x, u8 y, MultipleType type) {
     multiple->active = 1;
 }
 
-void MultipleFire(Multiple *multiple, u8 playerIndex) {
+void MultipleFire(Multiple *multiple) {
     if(!multiple->active) {
         return;
     }
 
     MultipleBulletFireNext(
-        playerIndex, multiple->rect.x, multiple->rect.y,
-        multiple->type == SPREAD_MULTIPLE ? DOUBLE_BULLET : STANDARD_BULLET
+        multiple->bullets, multiple->rect.x, multiple->rect.y,
+        multiple->type == SPREAD_MULTIPLE_TYPE ? DOUBLE_PLAYER_BULLET_TYPE : STANDARD_PLAYER_BULLET_TYPE,
+        MULTIPLE_BULLETS_ROUND_COUNT, MULTIPLE_BULLETS_COUNT
     );
 }
 
@@ -50,8 +51,15 @@ void MultipleMoveX(Multiple *multiple, u8 x) {
 }
 
 void MultipleUpdate(Multiple *multiple) {
+    u8 i;
     if(!multiple->active) {
         return;
+    }
+
+    i = 0;
+    while(i < MULTIPLE_BULLETS_COUNT) {
+        PlayerBulletUpdate(&multiple->bullets[i]);
+        i++;
     }
 
     multiple->animTime++;
@@ -61,11 +69,11 @@ void MultipleUpdate(Multiple *multiple) {
 
     switch(multiple->animTime) {
         case 0:
-            multiple->srcRect.x = multiple->type == SPREAD_MULTIPLE ? 224 : 192;
+            multiple->srcRect.x = multiple->type == SPREAD_MULTIPLE_TYPE ? 224 : 192;
             break;
         case 4:
         case 12:
-            multiple->srcRect.x = multiple->type == SPREAD_MULTIPLE ? 240 : 208;
+            multiple->srcRect.x = multiple->type == SPREAD_MULTIPLE_TYPE ? 240 : 208;
             break;
         case 8:
             multiple->srcRect.x = 176;
@@ -74,8 +82,15 @@ void MultipleUpdate(Multiple *multiple) {
 }
 
 void MultipleDraw(Multiple *multiple) {
+    u8 i;
     if(!multiple->active) {
         return;
+    }
+
+    i = 0;
+    while(i < MULTIPLE_BULLETS_COUNT) {
+        PlayerBulletDraw(&multiple->bullets[i]);
+        i++;
     }
 
     SDL_RenderCopy(renderer, spriteEnemy, &multiple->srcRect, &multiple->rect);

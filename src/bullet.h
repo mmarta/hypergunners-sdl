@@ -18,8 +18,8 @@
 #define SHRAPNEL_BULLET_SIZE 8
 
 typedef enum {
-    STANDARD_BULLET,
-    DOUBLE_BULLET
+    STANDARD_PLAYER_BULLET_TYPE,
+    DOUBLE_PLAYER_BULLET_TYPE
 } PlayerBulletType;
 
 typedef struct {
@@ -33,22 +33,21 @@ typedef struct {
     char dX, dY;
     u8 active, associatedPlayerIndex, multiplier;
     Hitbox hitbox;
-} ShrapnelBullet;
+} EnemyBullet;
 
-extern PlayerBullet playerBullets[];
-extern ShrapnelBullet shrapnelBullets[];
-extern PlayerBullet multipleBullets[];
+// Enemy bullet pools
+extern EnemyBullet shrapnelBullets[];
 
-void PlayerBulletFireNext(u8, int, int);
+void PlayerBulletFireNext(PlayerBullet [], int, int, u8);
 void PlayerBulletUpdate(PlayerBullet *);
 void PlayerBulletDraw(PlayerBullet *);
 void PlayerBulletDeactivate(PlayerBullet *);
 
-void MultipleBulletFireNext(u8, int, int, PlayerBulletType);
+void MultipleBulletFireNext(PlayerBullet [], int, int, PlayerBulletType, u8, u8);
 
 void ShrapnelBulletSpray(int, int, u8, u8);
-void ShrapnelBulletUpdate(u8);
-void ShrapnelBulletDraw(u8);
-void ShrapnelBulletDeactivate(u8);
+void ShrapnelBulletUpdate(EnemyBullet *);
+void ShrapnelBulletDraw(EnemyBullet *);
+void ShrapnelBulletDeactivate(EnemyBullet *);
 
 #endif
